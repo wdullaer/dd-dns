@@ -7,16 +7,52 @@ import (
 )
 
 type config struct {
-	Provider      string
-	AccountName   string
-	AccountSecret string
-	DNSContent    string
-	DockerLabel   string
+	Provider      string `json:"provider"`
+	AccountName   string `json:"account-name"`
+	AccountSecret string `json:"account-secret"`
+	DNSContent    string `json:"dns-content"`
+	DockerLabel   string `json:"docker-label"`
 }
 
-func (c *config) Validate() (*config, error) {
-	// TODO: Implement validation
-	return c, nil
+func (c *config) String() string {
+	return fmt.Sprintf(
+		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\"}",
+		c.Provider,
+		c.AccountName,
+		"****",
+		c.DNSContent,
+		c.DockerLabel,
+	)
+}
+
+func (c *config) Validate() []error {
+	var errs []error
+	if value, err := validateProvider(c.Provider); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.Provider = value
+	}
+	if value, err := validateAccountName(c.AccountName); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.AccountName = value
+	}
+	if value, err := validateAccountSecret(c.AccountSecret); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.AccountSecret = value
+	}
+	if value, err := validateDNSContent(c.DNSContent); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.DNSContent = value
+	}
+	if value, err := validateDockerLabel(c.DockerLabel); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.DockerLabel = value
+	}
+	return errs
 }
 
 func validateProvider(provider string) (string, error) {
@@ -48,12 +84,12 @@ func validateDNSContent(dnsContent string) (string, error) {
 	default:
 		ip := net.IP(dnsContent)
 		if ip == nil {
-			return "", fmt.Errorf("Invalid dns-content specified. %s must be a valid IPv4 address or one of [`host`, `container`]")
+			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of [`host`, `container`]", dnsContent)
 		}
 		ip = ip.To4()
 		// TODO: remove this check when we add IPv6 support. We might want to split this config variable in 2 when we do (MODE and actual IP)
 		if ip == nil {
-			return "", fmt.Errorf("Invalid dns-content specified. %s must be a valid IPv4 address or one of [`host`, `container`]")
+			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of [`host`, `container`]", dnsContent)
 		}
 		return ip.String(), nil
 	}

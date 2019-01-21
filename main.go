@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 
@@ -22,15 +21,31 @@ var (
 )
 
 func main() {
-	fmt.Println("[INFO] Starting up docker-dns-updater daemon")
-	fmt.Println("[INFO] Connecting to docker")
+	log.Println("[INFO] Starting up docker-dns-updater daemon")
+	flag.Parse()
+	configuration := &config{
+		Provider:      *provider,
+		AccountName:   *accountName,
+		AccountSecret: *accountSecret,
+		DNSContent:    *dnsContent,
+		DockerLabel:   *dockerLabel,
+	}
+	if errs := configuration.Validate(); len(errs) != 0 {
+		for i := range errs {
+			log.Printf("[FATAL] Invalid configuration value: %s", errs[i])
+		}
+		os.Exit(1)
+	}
+	log.Printf("[INFO] Using configuration: %s", configuration)
+
+	log.Println("[INFO] Connecting to docker")
 	dockerClient, err := getDockerClient()
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to initialize docker client: %s", err)
 	}
 	log.Println("[INFO] Connected to docker")
 
-	fmt.Println("[INFO] Connecting to DNS Provider: %s", "Cloudflare")
+	log.Printf("[INFO] Connecting to DNS Provider: %s", "Cloudflare")
 	provider, err := getDNSProvider()
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to connect with DNS Provider %s", err)
