@@ -25,6 +25,7 @@ func (c *config) String() string {
 	)
 }
 
+// Validate checks each Property of config and provides default values
 func (c *config) Validate() []error {
 	var errs []error
 	if value, err := validateProvider(c.Provider); err != nil {
@@ -55,6 +56,7 @@ func (c *config) Validate() []error {
 	return errs
 }
 
+// validateProvider normalizes Provider and checks that it is part of the list of allowable values
 func validateProvider(provider string) (string, error) {
 	switch sanitize(provider) {
 	case "":
@@ -66,14 +68,17 @@ func validateProvider(provider string) (string, error) {
 	}
 }
 
+// validateAccountName is a noop, any string passes
 func validateAccountName(accountName string) (string, error) {
 	return accountName, nil
 }
 
+// validateAccountSecret is a noop, any string passes
 func validateAccountSecret(accountSecret string) (string, error) {
 	return accountSecret, nil
 }
 
+// validateDNSContent normalizes DNSContent and checks if it's an IPv4 or part of a list of allowable values
 func validateDNSContent(dnsContent string) (string, error) {
 	dnsContent = sanitize(dnsContent)
 	switch dnsContent {
@@ -95,6 +100,7 @@ func validateDNSContent(dnsContent string) (string, error) {
 	}
 }
 
+// validateDockerLabel sets a default, any string is valid
 func validateDockerLabel(dockerLabel string) (string, error) {
 	dockerLabel = sanitize(dockerLabel)
 	if dockerLabel == "" {

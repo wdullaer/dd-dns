@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/client"
+	docker "github.com/docker/docker/client"
 	memdb "github.com/hashicorp/go-memdb"
 )
 
@@ -20,8 +21,19 @@ var (
 	dockerLabel   = flag.String("docker-label", os.Getenv("DOCKER_LABEL"), "The docker label that contains the domain name")
 )
 
+type state struct {
+	Config       *config
+	Provider     DNSProvider
+	DockerClient *docker.Client
+	Db           *memdb.MemDB
+}
+
 func main() {
 	log.Println("[INFO] Starting up docker-dns-updater daemon")
+
+	var state *state
+
+	// Load and validate the configuration
 	flag.Parse()
 	configuration := &config{
 		Provider:      *provider,
@@ -36,32 +48,42 @@ func main() {
 		}
 		os.Exit(1)
 	}
+	state.Config = configuration
 	log.Printf("[INFO] Using configuration: %s", configuration)
 
+	// Connect to docker daemon
 	log.Println("[INFO] Connecting to docker")
 	dockerClient, err := getDockerClient()
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to initialize docker client: %s", err)
 	}
+	state.DockerClient = dockerClient
 	log.Println("[INFO] Connected to docker")
 
+	// Create the DNSProvider
 	log.Printf("[INFO] Connecting to DNS Provider: %s", "Cloudflare")
-	provider, err := getDNSProvider()
+	provider, err := getDNSProvider(configuration)
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to connect with DNS Provider %s", err)
 	}
+	state.Provider = provider
 	log.Printf("[INFO] Connected to DNS Provider: %s", "Cloudflare")
 
+	// Create the in memory database
 	db, err := initializeDatabase()
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to initialize in memory database: %s", err)
 	}
+	state.Db = db
 
-	monitorEvents(dockerClient, provider, db)
+	// Fetch the current state
+
+	// Monitor for changes and update the current state
+	monitorEvents(state)
 }
 
-func getDockerClient() (*client.Client, error) {
-	dockerClient, err := client.NewClientWithOpts(client.FromEnv)
+func getDockerClient() (*docker.Client, error) {
+	dockerClient, err := docker.NewClientWithOpts(docker.FromEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +97,14 @@ func getDockerClient() (*client.Client, error) {
 	return dockerClient, nil
 }
 
-func getDNSProvider() (DNSProvider, error) {
-	// TODO: Add support for multiple providers
-	return NewCloudflareProvider("TODO: Email", "TODO: Token")
+func getDNSProvider(config *config) (DNSProvider, error) {
+	switch config.Provider {
+	case "cloudflare":
+		return NewCloudflareProvider(config.AccountName, config.AccountSecret)
+	// Since we are eagerly validating the config, this should never happen
+	default:
+		return nil, fmt.Errorf("Invalid provider specified: %s", config.Provider)
+	}
 }
 
 func initializeDatabase() (*memdb.MemDB, error) {
@@ -104,21 +131,25 @@ func initializeDatabase() (*memdb.MemDB, error) {
 	return memdb.NewMemDB(schema)
 }
 
-func monitorEvents(dockerClient *client.Client, provider DNSProvider, db *memdb.MemDB) {
-	// TODO: make the label we are looking for configurable
-	dnsNameLabel := "caddy.address"
+func monitorEvents(state *state) {
+	// Assert that the we are in a valid state
+	assertNotNil(state.DockerClient, "DockerClient not initialized")
+	assertNotNil(state.Db, "Db not initialized")
+	assertNotNil(state.Provider, "DNSProvider not initialized")
+	assert(state.Config.DockerLabel != "", "Empty DockerLabel provided")
+
 	args := filters.NewArgs()
 	args.Add("scope", "swarm")
 	args.Add("scope", "local")
-	args.Add("type", "service") // service is created and deleted, we should probably special case this through some config
+	//args.Add("type", "service") // service is created and deleted, we should probably special case this through some config
 	args.Add("type", "container")
-	args.Add("type", "config")
+	//args.Add("type", "config") // TODO: check what triggers these events
 	args.Add("event", "start")
 	args.Add("event", "die")
-	args.Add("event", "update")
-	args.Add("label", dnsNameLabel)
+	//args.Add("event", "update") // Only services are updated
+	args.Add("label", state.Config.DockerLabel)
 
-	eventsChan, errorChan := dockerClient.Events(context.Background(), types.EventsOptions{
+	eventsChan, errorChan := state.DockerClient.Events(context.Background(), types.EventsOptions{
 		Filters: args,
 	})
 
@@ -126,15 +157,15 @@ func monitorEvents(dockerClient *client.Client, provider DNSProvider, db *memdb.
 		select {
 		case event := <-eventsChan:
 			log.Printf("[DEBUG] Received event: %s", event)
-			name := event.Actor.Attributes[dnsNameLabel]
+			name := event.Actor.Attributes[state.Config.DockerLabel]
 			containerID := event.Actor.ID
 			// TODO: make the target IP configurable, add an option so it's the internal container IP
 			ip := "192.168.2.1"
 			switch event.Action {
 			case "start":
 				log.Printf("Check in memory store and create DNS if necessary")
-				txn := db.Txn(true)
-				err := insertRecord(txn, name, ip, containerID, provider)
+				txn := state.Db.Txn(true)
+				err := insertRecord(txn, name, ip, containerID, state.Provider)
 				if err != nil {
 					txn.Abort()
 					// TODO: just propagate the error out of this function and handle it higher up
@@ -143,8 +174,8 @@ func monitorEvents(dockerClient *client.Client, provider DNSProvider, db *memdb.
 				txn.Commit()
 			case "die":
 				log.Printf("Check in memory store and remove DNS if necessary")
-				txn := db.Txn(true)
-				err := removeRecord(txn, containerID, provider)
+				txn := state.Db.Txn(true)
+				err := removeRecord(txn, containerID, state.Provider)
 				if err != nil {
 					txn.Abort()
 					// TODO: just propagate the error out of this function and handle it higher up
@@ -154,8 +185,8 @@ func monitorEvents(dockerClient *client.Client, provider DNSProvider, db *memdb.
 			case "update":
 				// Labels cannot be updated at runtime for containers, only services, this is not necessary right now
 				log.Print("Check the in memory store and update DNS if necessary")
-				txn := db.Txn(true)
-				err := updateRecord(txn, name, ip, containerID, provider)
+				txn := state.Db.Txn(true)
+				err := updateRecord(txn, name, ip, containerID, state.Provider)
 				if err != nil {
 					txn.Abort()
 					// TODO: just propagate the error out of this function and handle it higher up
@@ -279,6 +310,18 @@ func remove(col []string, item string) []string {
 		}
 	}
 	return col
+}
+
+func assert(expr bool, msg string) {
+	if !expr {
+		log.Fatalf("Assertion Failed: %s", msg)
+	}
+}
+
+func assertNotNil(value interface{}, msg string) {
+	if value != nil {
+		log.Fatalf("Not nil assertion failed: %s", msg)
+	}
 }
 
 type DNSLabel struct {
