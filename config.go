@@ -63,8 +63,10 @@ func validateProvider(provider string) (string, error) {
 		return "cloudflare", nil
 	case "cloudflare":
 		return "cloudflare", nil
+	case "dryrun":
+		return "dryrun", nil
 	default:
-		return "", fmt.Errorf("Invalid provider `%s` specified. Available providers: [`cloudflare`]", provider)
+		return "", fmt.Errorf("Invalid provider `%s` specified. Available providers: [`cloudflare`, `dryrun`]", provider)
 	}
 }
 

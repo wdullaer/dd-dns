@@ -103,6 +103,8 @@ func getDNSProvider(config *config) (dns.DNSProvider, error) {
 	switch config.Provider {
 	case "cloudflare":
 		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret)
+	case "dryrun":
+		return dns.NewDryrunProvider()
 	// Since we are eagerly validating the config, this should never happen
 	default:
 		return nil, fmt.Errorf("Invalid provider specified: %s", config.Provider)
