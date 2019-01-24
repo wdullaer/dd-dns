@@ -1,4 +1,4 @@
-package main
+package dns
 
 import (
 	"log"
@@ -6,11 +6,6 @@ import (
 
 	cloudflare "github.com/cloudflare/cloudflare-go"
 )
-
-type DNSProvider interface {
-	AddHostnameMapping(hostname string, ip string) error
-	RemoveHostnameMapping(hostname string, ip string) error
-}
 
 type CloudflareProvider struct {
 	API *cloudflare.API
@@ -105,19 +100,4 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(hostname string, ip st
 	}
 
 	return nil
-}
-
-func getZoneName(hostname string) string {
-	parts := strings.Split(hostname, ".")
-	parts = parts[len(parts)-2 : len(parts)]
-	return strings.Join(parts, ".")
-}
-
-func findIndex(col []string, item string) int {
-	for i := range col {
-		if col[i] == item {
-			return i
-		}
-	}
-	return -1
 }

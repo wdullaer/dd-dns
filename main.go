@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/wdullaer/docker-dns-updater/dns"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
@@ -23,7 +25,7 @@ var (
 
 type state struct {
 	Config       *config
-	Provider     DNSProvider
+	Provider     dns.DNSProvider
 	DockerClient *docker.Client
 	Db           *memdb.MemDB
 }
@@ -31,7 +33,7 @@ type state struct {
 func main() {
 	log.Println("[INFO] Starting up docker-dns-updater daemon")
 
-	var state *state
+	state := &state{}
 
 	// Load and validate the configuration
 	flag.Parse()
@@ -49,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 	state.Config = configuration
-	log.Printf("[INFO] Using configuration: %s", configuration)
+	log.Printf("[INFO] Using configuration: %s", state.Config)
 
 	// Connect to docker daemon
 	log.Println("[INFO] Connecting to docker")
@@ -61,13 +63,13 @@ func main() {
 	log.Println("[INFO] Connected to docker")
 
 	// Create the DNSProvider
-	log.Printf("[INFO] Connecting to DNS Provider: %s", "Cloudflare")
-	provider, err := getDNSProvider(configuration)
+	log.Printf("[INFO] Connecting to DNS Provider: %s", state.Config.Provider)
+	provider, err := getDNSProvider(state.Config)
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to connect with DNS Provider %s", err)
 	}
 	state.Provider = provider
-	log.Printf("[INFO] Connected to DNS Provider: %s", "Cloudflare")
+	log.Printf("[INFO] Connected to DNS Provider: %s", state.Config.Provider)
 
 	// Create the in memory database
 	db, err := initializeDatabase()
@@ -97,10 +99,10 @@ func getDockerClient() (*docker.Client, error) {
 	return dockerClient, nil
 }
 
-func getDNSProvider(config *config) (DNSProvider, error) {
+func getDNSProvider(config *config) (dns.DNSProvider, error) {
 	switch config.Provider {
 	case "cloudflare":
-		return NewCloudflareProvider(config.AccountName, config.AccountSecret)
+		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret)
 	// Since we are eagerly validating the config, this should never happen
 	default:
 		return nil, fmt.Errorf("Invalid provider specified: %s", config.Provider)
@@ -203,7 +205,7 @@ func monitorEvents(state *state) {
 	}
 }
 
-func insertRecord(txn *memdb.Txn, name string, ip string, containerID string, provider DNSProvider) error {
+func insertRecord(txn *memdb.Txn, name string, ip string, containerID string, provider dns.DNSProvider) error {
 	rawRecord, err := txn.First("dns-label", "id", name, ip)
 	if err != nil {
 		return err
@@ -240,7 +242,7 @@ func insertRecord(txn *memdb.Txn, name string, ip string, containerID string, pr
 	return nil
 }
 
-func updateRecord(txn *memdb.Txn, name string, ip string, containerID string, provider DNSProvider) error {
+func updateRecord(txn *memdb.Txn, name string, ip string, containerID string, provider dns.DNSProvider) error {
 	rawRecord, err := txn.First("dns-label", "containerid", containerID)
 	if err != nil {
 		return err
@@ -259,7 +261,7 @@ func updateRecord(txn *memdb.Txn, name string, ip string, containerID string, pr
 	return insertRecord(txn, name, ip, containerID, provider)
 }
 
-func removeRecord(txn *memdb.Txn, containerID string, provider DNSProvider) error {
+func removeRecord(txn *memdb.Txn, containerID string, provider dns.DNSProvider) error {
 	rawRecord, err := txn.First("dns-label", "containerid", containerID)
 	if err != nil {
 		return err
@@ -319,7 +321,7 @@ func assert(expr bool, msg string) {
 }
 
 func assertNotNil(value interface{}, msg string) {
-	if value != nil {
+	if value == nil {
 		log.Fatalf("Not nil assertion failed: %s", msg)
 	}
 }
