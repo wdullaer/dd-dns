@@ -79,6 +79,7 @@ func main() {
 	state.Db = db
 
 	// Fetch the current state
+	syncDNSWithDocker(state)
 
 	// Monitor for changes and update the current state
 	monitorEvents(state)
@@ -133,6 +134,45 @@ func initializeDatabase() (*memdb.MemDB, error) {
 	}
 
 	return memdb.NewMemDB(schema)
+}
+
+func syncDNSWithDocker(state *state) {
+	// Assert that the we are in a valid state
+	assertNotNil(state.DockerClient, "DockerClient not initialized")
+	assertNotNil(state.Db, "Db not initialized")
+	assertNotNil(state.Provider, "DNSProvider not initialized")
+	assert(state.Config.DockerLabel != "", "Empty DockerLabel provided")
+
+	args := filters.NewArgs()
+	args.Add("label", state.Config.DockerLabel)
+	containerList, err := state.DockerClient.ContainerList(context.Background(), types.ContainerListOptions{
+		Filters: args,
+	})
+	// TODO: propagate error out of this function
+	if err != nil {
+		log.Fatalf("[FATAL] Failed to list docker containers: %s", err)
+	}
+
+	if len(containerList) != 0 {
+		txn := state.Db.Txn(true)
+		// TODO: improve this by only removing entries that are not present in the container list
+		txn.DeleteAll("dns-label", "id")
+		for i := range containerList {
+			container := containerList[i]
+			name := container.Labels[state.Config.DockerLabel]
+			// TODO: make this configurable
+			ip := "192.168.0.1"
+			containerID := container.ID
+
+			err := insertRecord(txn, name, ip, containerID, state.Provider)
+			if err != nil {
+				txn.Abort()
+				// TODO: just propagate the error out of this function and handle it higher up
+				log.Fatalf("[FATAL] Encountered an error when updating DNS: %s", err)
+			}
+		}
+		txn.Commit()
+	}
 }
 
 func monitorEvents(state *state) {
@@ -213,7 +253,6 @@ func insertRecord(txn *memdb.Txn, name string, ip string, containerID string, pr
 		return err
 	}
 	if rawRecord == nil {
-		// TODO: create record in DNS
 		log.Printf("[INFO] Insert record into DNS")
 		if err = provider.AddHostnameMapping(name, ip); err != nil {
 			return err
