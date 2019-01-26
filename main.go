@@ -19,7 +19,7 @@ var (
 	provider      = flag.String("provider", os.Getenv("PROVIDER"), "The DNS provider to register the domain names with")
 	accountName   = flag.String("account-name", os.Getenv("ACCOUNT_NAME"), "The account-name (or equivalent) to be used for authenticating with the DNS provider")
 	accountSecret = flag.String("account-secret", os.Getenv("ACCOUNT_SECRET"), "The account-secret (or equivalent) to be used for authenticating with the DNS provider")
-	dnsContent    = flag.String("dns-content", os.Getenv("DNS_CONTENT"), "The IP address to be added to the DNS content (default: `host`, oneOf: [`host`, `container`, `<ipv4>`]")
+	dnsContent    = flag.String("dns-content", os.Getenv("DNS_CONTENT"), "The IP address to be added to the DNS content (default: `container`, oneOf: [`container`, `<ipv4>`]")
 	dockerLabel   = flag.String("docker-label", os.Getenv("DOCKER_LABEL"), "The docker label that contains the domain name")
 )
 
@@ -145,6 +145,7 @@ func syncDNSWithDocker(state *state) {
 
 	args := filters.NewArgs()
 	args.Add("label", state.Config.DockerLabel)
+	args.Add("status", "running")
 	containerList, err := state.DockerClient.ContainerList(context.Background(), types.ContainerListOptions{
 		Filters: args,
 	})

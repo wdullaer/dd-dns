@@ -85,18 +85,18 @@ func validateDNSContent(dnsContent string) (string, error) {
 	dnsContent = sanitize(dnsContent)
 	switch dnsContent {
 	case "":
-		return "host", nil
+		return "container", nil
 	case "container":
 		return "container", nil
 	default:
 		ip := net.IP(dnsContent)
 		if ip == nil {
-			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of [`host`, `container`]", dnsContent)
+			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
 		}
 		ip = ip.To4()
 		// TODO: remove this check when we add IPv6 support. We might want to split this config variable in 2 when we do (MODE and actual IP)
 		if ip == nil {
-			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of [`host`, `container`]", dnsContent)
+			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
 		}
 		return ip.String(), nil
 	}
