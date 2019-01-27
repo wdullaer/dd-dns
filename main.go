@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -106,8 +107,8 @@ func getDNSProvider(config *config) (dns.DNSProvider, error) {
 		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret)
 	case "dryrun":
 		return dns.NewDryrunProvider()
-	// Since we are eagerly validating the config, this should never happen
 	default:
+		// Since we are eagerly validating the config, this should never happen
 		return nil, fmt.Errorf("Invalid provider specified: %s", config.Provider)
 	}
 }
@@ -161,11 +162,14 @@ func syncDNSWithDocker(state *state) {
 		for i := range containerList {
 			container := containerList[i]
 			name := container.Labels[state.Config.DockerLabel]
-			// TODO: make this configurable
-			ip := "192.168.0.1"
+			ip, err := getIP(&container, state.Config.DNSContent)
+			if err != nil {
+				log.Printf("[ERROR] Failed to obtain IP address: %s", err)
+				continue
+			}
 			containerID := container.ID
 
-			err := insertRecord(txn, name, ip, containerID, state.Provider)
+			err = insertRecord(txn, name, ip, containerID, state.Provider)
 			if err != nil {
 				txn.Abort()
 				// TODO: just propagate the error out of this function and handle it higher up
@@ -194,6 +198,8 @@ func monitorEvents(state *state) {
 	//args.Add("event", "update") // Only services are updated
 	args.Add("label", state.Config.DockerLabel)
 
+	// TODO: also listen to network/connect and network/disconnect messages, as these might change the IP of a container
+
 	eventsChan, errorChan := state.DockerClient.Events(context.Background(), types.EventsOptions{
 		Filters: args,
 	})
@@ -204,13 +210,21 @@ func monitorEvents(state *state) {
 			log.Printf("[DEBUG] Received event: %s", event)
 			name := event.Actor.Attributes[state.Config.DockerLabel]
 			containerID := event.Actor.ID
-			// TODO: make the target IP configurable, add an option so it's the internal container IP
-			ip := "192.168.2.1"
 			switch event.Action {
 			case "start":
+				container, err := getContainerByID(state.DockerClient, containerID)
+				if err != nil {
+					log.Printf("[ERROR] Could not obtain container details: %s", err)
+					continue
+				}
+				ip, err := getIP(container, state.Config.DNSContent)
+				if err != nil {
+					log.Printf("[ERROR] Could not obtain container IP: %s", err)
+					continue
+				}
 				log.Printf("Check in memory store and create DNS if necessary")
 				txn := state.Db.Txn(true)
-				err := insertRecord(txn, name, ip, containerID, state.Provider)
+				err = insertRecord(txn, name, ip, containerID, state.Provider)
 				if err != nil {
 					txn.Abort()
 					// TODO: just propagate the error out of this function and handle it higher up
@@ -221,17 +235,6 @@ func monitorEvents(state *state) {
 				log.Printf("Check in memory store and remove DNS if necessary")
 				txn := state.Db.Txn(true)
 				err := removeRecord(txn, containerID, state.Provider)
-				if err != nil {
-					txn.Abort()
-					// TODO: just propagate the error out of this function and handle it higher up
-					log.Fatalf("[FATAL] Encountered an error when updating DNS: %s", err)
-				}
-				txn.Commit()
-			case "update":
-				// Labels cannot be updated at runtime for containers, only services, this is not necessary right now
-				log.Print("Check the in memory store and update DNS if necessary")
-				txn := state.Db.Txn(true)
-				err := updateRecord(txn, name, ip, containerID, state.Provider)
 				if err != nil {
 					txn.Abort()
 					// TODO: just propagate the error out of this function and handle it higher up
@@ -335,6 +338,37 @@ func removeRecord(txn *memdb.Txn, containerID string, provider dns.DNSProvider) 
 	}
 
 	return nil
+}
+
+func getIP(container *types.Container, mode string) (string, error) {
+	switch mode {
+	case "container":
+		// TODO: look at a docker label for the network to use (return first if not set)
+		for name, network := range container.NetworkSettings.Networks {
+			log.Printf("[DEBUG] (network: %s, ip: %s)", name, network.IPAddress)
+			if network.IPAddress != "" {
+				return network.IPAddress, nil
+			}
+		}
+		return "", errors.New("container has no internal IP addresses")
+	default:
+		return mode, nil
+	}
+}
+
+func getContainerByID(client *docker.Client, ID string) (*types.Container, error) {
+	args := filters.NewArgs()
+	args.Add("id", ID)
+	containers, err := client.ContainerList(context.Background(), types.ContainerListOptions{
+		Filters: args,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(containers) == 0 {
+		return nil, fmt.Errorf("no container with ID %s could be found", ID)
+	}
+	return &containers[0], nil
 }
 
 func contains(col []string, item string) bool {

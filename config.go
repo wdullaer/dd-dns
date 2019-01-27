@@ -12,6 +12,7 @@ type config struct {
 	AccountSecret string `json:"account-secret"`
 	DNSContent    string `json:"dns-content"`
 	DockerLabel   string `json:"docker-label"`
+	// TODO: Add config entry for default docker network to use when DNSContent is container
 }
 
 func (c *config) String() string {
