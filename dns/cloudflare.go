@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	cloudflare "github.com/cloudflare/cloudflare-go"
+	"github.com/wdullaer/docker-dns-updater/stringslice"
 )
 
 type CloudflareProvider struct {
@@ -86,7 +87,7 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(hostname string, ip st
 	record := records[0]
 	currentIPs := strings.Split(record.Content, ",")
 
-	index := findIndex(currentIPs, ip)
+	index := stringslice.FindIndex(currentIPs, ip)
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if index == -1 {
 		log.Printf("[WARN] IP %s is not mapped to hostname %s.", ip, hostname)

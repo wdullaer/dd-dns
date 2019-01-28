@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/wdullaer/docker-dns-updater/dns"
+	"github.com/wdullaer/docker-dns-updater/stringslice"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -273,7 +274,7 @@ func insertRecord(txn *memdb.Txn, name string, ip string, containerID string, pr
 	}
 	record := rawRecord.(*DNSLabel)
 	log.Printf("[DEBUG] Record found in in-memory store: %s", record)
-	if !contains(record.ContainerID, containerID) {
+	if !stringslice.Contains(record.ContainerID, containerID) {
 		// No need to update DNS, the record should already exist
 		log.Print("[DEBUG] Record does not contain containerID, adding it")
 		if err = txn.Delete("dns-label", record); err != nil {
@@ -321,7 +322,7 @@ func removeRecord(txn *memdb.Txn, containerID string, provider dns.DNSProvider) 
 	}
 
 	record := rawRecord.(*DNSLabel)
-	record.ContainerID = remove(record.ContainerID, containerID)
+	record.ContainerID = stringslice.RemoveFirst(record.ContainerID, containerID)
 
 	if len(record.ContainerID) == 0 {
 		// No more containers mapped to this (name, ip) tuple, it can be removed from DNS
@@ -369,25 +370,6 @@ func getContainerByID(client *docker.Client, ID string) (*types.Container, error
 		return nil, fmt.Errorf("no container with ID %s could be found", ID)
 	}
 	return &containers[0], nil
-}
-
-func contains(col []string, item string) bool {
-	for i := range col {
-		if col[i] == item {
-			return true
-		}
-	}
-	return false
-}
-
-func remove(col []string, item string) []string {
-	for i := range col {
-		if col[i] == item {
-			col[i] = col[len(col)-1]
-			return col[:len(col)-1]
-		}
-	}
-	return col
 }
 
 func assert(expr bool, msg string) {

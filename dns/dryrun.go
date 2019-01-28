@@ -3,6 +3,8 @@ package dns
 import (
 	"log"
 	"strings"
+
+	"github.com/wdullaer/docker-dns-updater/stringslice"
 )
 
 type DryrunProvider struct {
@@ -18,7 +20,7 @@ func (provider *DryrunProvider) AddHostnameMapping(hostname string, ip string) e
 	if len(provider.Zone[hostname]) == 0 {
 		provider.Zone[hostname] = []string{ip}
 	} else {
-		if findIndex(provider.Zone[hostname], ip) == -1 {
+		if stringslice.FindIndex(provider.Zone[hostname], ip) == -1 {
 			provider.Zone[hostname] = append(provider.Zone[hostname], ip)
 		}
 	}
@@ -29,7 +31,7 @@ func (provider *DryrunProvider) AddHostnameMapping(hostname string, ip string) e
 func (provider *DryrunProvider) RemoveHostnameMapping(hostname string, ip string) error {
 	log.Printf("[INFO] Dryrun - Removing mapping: %s\tA\t%s", hostname, ip)
 	mapping := provider.Zone[hostname]
-	index := findIndex(mapping, ip)
+	index := stringslice.FindIndex(mapping, ip)
 	if index == -1 {
 		// Should never happen
 		log.Printf("[WARN] Dryrun - Attemting to remove a non mapped IP")
