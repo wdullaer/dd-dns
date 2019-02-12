@@ -15,6 +15,6 @@ The following limitations apply, not because they are out of scope per se, but b
 
 ## TODO
 * [ ] Look into [viper config library](https://github.com/spf13/viper)
-* [ ] Move to a better designed loggin library like https://github.com/hashicorp/go-hclog
+* [ ] Move to a better designed logging library like https://github.com/hashicorp/go-hclog
 * [ ] Allow DNS providers to be implemented via a plugin using the [hashicorp plugin rpc](https://github.com/hashicorp/go-plugin)
 * [ ] Make embedded db pluggable (eg use consul K/V so it can run in a cluster)
