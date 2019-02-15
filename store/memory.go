@@ -45,7 +45,7 @@ func NewMemoryStore() (*MemoryStore, error) {
 
 func (*MemoryStore) CleanUp() {}
 
-func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(string, string) error) error {
+func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(*types.DNSMapping) error) error {
 	txn := store.db.Txn(true)
 	defer txn.Abort()
 
@@ -56,7 +56,7 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(strin
 
 	if rawRecord == nil {
 		log.Println("[INFO] Insert record into DNS")
-		if err = cb(mapping.Name, mapping.IP); err != nil {
+		if err = cb(mapping); err != nil {
 			return err
 		}
 		err = txn.Insert(tableName, &types.DNSContainerList{
@@ -87,7 +87,7 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(strin
 	return nil
 }
 
-func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(string, string) error) error {
+func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(*types.DNSMapping) error) error {
 	txn := store.db.Txn(true)
 	defer txn.Abort()
 
@@ -108,7 +108,7 @@ func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(strin
 	record.ContainerList = stringslice.RemoveFirst(record.ContainerList, mapping.ContainerID)
 
 	if len(record.ContainerList) == 0 {
-		if err = cb(mapping.Name, mapping.IP); err != nil {
+		if err = cb(mapping); err != nil {
 			return err
 		}
 	} else {

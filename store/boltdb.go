@@ -41,7 +41,7 @@ func (store *BoltDBStore) CleanUp() {
 	store.db.Close()
 }
 
-func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB func(string, string) error) error {
+func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB func(*types.DNSMapping) error) error {
 	return store.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		rawRecord := bucket.Get(dnsMapping.GetKey())
@@ -62,7 +62,7 @@ func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB f
 			}
 			// Not sure if it's a good idea to keep this IO in the transaction
 			// It does guarantee consistency this way
-			return insertCB(dnsMapping.Name, dnsMapping.IP)
+			return insertCB(dnsMapping)
 		}
 		// Record exists, append containerID
 		record := &types.DNSContainerList{}
@@ -86,7 +86,7 @@ func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB f
 	})
 }
 
-func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB func(string, string) error) error {
+func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB func(*types.DNSMapping) error) error {
 	return store.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 		rawRecord := bucket.Get(dnsMapping.GetKey())
@@ -105,7 +105,7 @@ func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB f
 
 		// No mappings anymore, remove from dns provider
 		if len(record.ContainerList) == 0 {
-			err := removeCB(dnsMapping.Name, dnsMapping.IP)
+			err := removeCB(dnsMapping)
 			if err != nil {
 				return err
 			}

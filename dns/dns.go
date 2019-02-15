@@ -2,11 +2,13 @@ package dns
 
 import (
 	"strings"
+
+	"github.com/wdullaer/docker-dns-updater/types"
 )
 
 type DNSProvider interface {
-	AddHostnameMapping(hostname string, ip string) error
-	RemoveHostnameMapping(hostname string, ip string) error
+	AddHostnameMapping(mapping *types.DNSMapping) error
+	RemoveHostnameMapping(mapping *types.DNSMapping) error
 }
 
 func getZoneName(hostname string) string {

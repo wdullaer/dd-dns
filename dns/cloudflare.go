@@ -6,6 +6,7 @@ import (
 
 	cloudflare "github.com/cloudflare/cloudflare-go"
 	"github.com/wdullaer/docker-dns-updater/stringslice"
+	"github.com/wdullaer/docker-dns-updater/types"
 )
 
 type CloudflareProvider struct {
@@ -23,14 +24,14 @@ func NewCloudflareProvider(email string, token string) (*CloudflareProvider, err
 	return &CloudflareProvider{API: api}, nil
 }
 
-func (provider *CloudflareProvider) AddHostnameMapping(hostname string, ip string) error {
-	zoneName := getZoneName(hostname)
+func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
+	zoneName := getZoneName(mapping.Name)
 
 	zoneID, err := provider.API.ZoneIDByName(zoneName)
 	if err != nil {
 		return err
 	}
-	records, err := provider.API.DNSRecords(zoneID, cloudflare.DNSRecord{Name: hostname, Type: "A"})
+	records, err := provider.API.DNSRecords(zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
 	if err != nil {
 		return err
 	}
@@ -38,8 +39,8 @@ func (provider *CloudflareProvider) AddHostnameMapping(hostname string, ip strin
 	// If there is no remote record for this hostname, we need to create it
 	if len(records) == 0 {
 		dnsRecord := cloudflare.DNSRecord{
-			Name:    hostname,
-			Content: ip,
+			Name:    mapping.Name,
+			Content: mapping.IP,
 			Type:    "A",
 		}
 		if _, err = provider.API.CreateDNSRecord(zoneID, dnsRecord); err != nil {
@@ -53,11 +54,11 @@ func (provider *CloudflareProvider) AddHostnameMapping(hostname string, ip strin
 	currentIPs := strings.Split(record.Content, ",")
 
 	for i := range currentIPs {
-		if currentIPs[i] == ip {
+		if currentIPs[i] == mapping.IP {
 			return nil
 		}
 	}
-	record.Content = strings.Join(append(currentIPs, ip), ",")
+	record.Content = strings.Join(append(currentIPs, mapping.IP), ",")
 
 	if err = provider.API.UpdateDNSRecord(zoneID, record.ID, record); err != nil {
 		return err
@@ -66,31 +67,31 @@ func (provider *CloudflareProvider) AddHostnameMapping(hostname string, ip strin
 	return nil
 }
 
-func (provider *CloudflareProvider) RemoveHostnameMapping(hostname string, ip string) error {
-	zoneName := getZoneName(hostname)
+func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapping) error {
+	zoneName := getZoneName(mapping.Name)
 
 	zoneID, err := provider.API.ZoneIDByName(zoneName)
 	if err != nil {
 		return err
 	}
-	records, err := provider.API.DNSRecords(zoneID, cloudflare.DNSRecord{Name: hostname, Type: "A"})
+	records, err := provider.API.DNSRecords(zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
 	if err != nil {
 		return err
 	}
 
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if len(records) == 0 {
-		log.Printf("[WARN] No records exist for hostname %s.", hostname)
+		log.Printf("[WARN] No records exist for hostname %s.", mapping.Name)
 		return nil
 	}
 
 	record := records[0]
 	currentIPs := strings.Split(record.Content, ",")
 
-	index := stringslice.FindIndex(currentIPs, ip)
+	index := stringslice.FindIndex(currentIPs, mapping.IP)
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if index == -1 {
-		log.Printf("[WARN] IP %s is not mapped to hostname %s.", ip, hostname)
+		log.Printf("[WARN] IP %s is not mapped to hostname %s.", mapping.IP, mapping.Name)
 		return nil
 	}
 
