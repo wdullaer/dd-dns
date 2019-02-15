@@ -12,17 +12,19 @@ type config struct {
 	AccountSecret string `json:"account-secret"`
 	DNSContent    string `json:"dns-content"`
 	DockerLabel   string `json:"docker-label"`
+	Store         string `json:"store"`
 	// TODO: Add config entry for default docker network to use when DNSContent is container
 }
 
 func (c *config) String() string {
 	return fmt.Sprintf(
-		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\"}",
+		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\", \"store\": \"%s\"}",
 		c.Provider,
 		c.AccountName,
 		"****",
 		c.DNSContent,
 		c.DockerLabel,
+		c.Store,
 	)
 }
 
@@ -53,6 +55,11 @@ func (c *config) Validate() []error {
 		errs = append(errs, err)
 	} else {
 		c.DockerLabel = value
+	}
+	if value, err := validateStore(c.Store); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.Store = value
 	}
 	return errs
 }
@@ -110,6 +117,19 @@ func validateDockerLabel(dockerLabel string) (string, error) {
 		return "caddy.address", nil
 	}
 	return dockerLabel, nil
+}
+
+func validateStore(store string) (string, error) {
+	switch sanitize(store) {
+	case "memory":
+		return "memory", nil
+	case "boltdb":
+		return "boltdb", nil
+	case "":
+		return "memory", nil
+	default:
+		return "", fmt.Errorf("Invalid store `%s` provided. Available store implementations: [`memory`, `boltdb`]", store)
+	}
 }
 
 func sanitize(value string) string {

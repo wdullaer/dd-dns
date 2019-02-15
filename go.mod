@@ -1,6 +1,7 @@
 module github.com/wdullaer/docker-dns-updater
 
 require (
+	github.com/boltdb/bolt v1.3.1
 	github.com/cloudflare/cloudflare-go v0.8.5
 	github.com/docker/distribution v2.7.0+incompatible // indirect
 	github.com/docker/docker v0.7.3-0.20190108045446-77df18c24acf
