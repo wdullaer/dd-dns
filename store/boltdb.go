@@ -48,10 +48,10 @@ func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB f
 
 		// New record, save it in db and create in dns provider
 		if rawRecord == nil {
-			payload, err := json.Marshal(types.DNSLabel{
-				Name:        dnsMapping.Name,
-				IP:          dnsMapping.IP,
-				ContainerID: []string{dnsMapping.ContainerID},
+			payload, err := json.Marshal(types.DNSContainerList{
+				Name:          dnsMapping.Name,
+				IP:            dnsMapping.IP,
+				ContainerList: []string{dnsMapping.ContainerID},
 			})
 			if err != nil {
 				return err
@@ -65,13 +65,13 @@ func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB f
 			return insertCB(dnsMapping.Name, dnsMapping.IP)
 		}
 		// Record exists, append containerID
-		record := &types.DNSLabel{}
+		record := &types.DNSContainerList{}
 		err := json.Unmarshal(rawRecord, record)
 		if err != nil {
 			return err
 		}
-		if !stringslice.Contains(record.ContainerID, dnsMapping.ContainerID) {
-			record.ContainerID = append(record.ContainerID, dnsMapping.ContainerID)
+		if !stringslice.Contains(record.ContainerList, dnsMapping.ContainerID) {
+			record.ContainerList = append(record.ContainerList, dnsMapping.ContainerID)
 			payload, err := json.Marshal(record)
 			if err != nil {
 				return err
@@ -96,15 +96,15 @@ func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB f
 			return nil
 		}
 
-		record := &types.DNSLabel{}
+		record := &types.DNSContainerList{}
 		err := json.Unmarshal(rawRecord, record)
 		if err != nil {
 			return err
 		}
-		record.ContainerID = stringslice.RemoveFirst(record.ContainerID, dnsMapping.ContainerID)
+		record.ContainerList = stringslice.RemoveFirst(record.ContainerList, dnsMapping.ContainerID)
 
 		// No mappings anymore, remove from dns provider
-		if len(record.ContainerID) == 0 {
+		if len(record.ContainerList) == 0 {
 			err := removeCB(dnsMapping.Name, dnsMapping.IP)
 			if err != nil {
 				return err
@@ -133,15 +133,15 @@ func (store *BoltDBStore) ReplaceMappings(mappings []*types.DNSMapping, provider
 		}
 
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
-			dnsLabel := &types.DNSLabel{}
-			json.Unmarshal(v, dnsLabel)
-			for _, containerID := range dnsLabel.ContainerID {
+			dnsContainerList := &types.DNSContainerList{}
+			json.Unmarshal(v, dnsContainerList)
+			for _, containerID := range dnsContainerList.ContainerList {
 				if stringslice.Contains(containerIDs, containerID) {
 					break
 				}
 				missingItems = append(missingItems, &types.DNSMapping{
-					Name:        dnsLabel.Name,
-					IP:          dnsLabel.IP,
+					Name:        dnsContainerList.Name,
+					IP:          dnsContainerList.IP,
 					ContainerID: containerID,
 				})
 			}

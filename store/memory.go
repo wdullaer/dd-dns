@@ -59,10 +59,10 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(strin
 		if err = cb(mapping.Name, mapping.IP); err != nil {
 			return err
 		}
-		err = txn.Insert(tableName, &types.DNSLabel{
-			Name:        mapping.Name,
-			IP:          mapping.IP,
-			ContainerID: []string{mapping.ContainerID},
+		err = txn.Insert(tableName, &types.DNSContainerList{
+			Name:          mapping.Name,
+			IP:            mapping.IP,
+			ContainerList: []string{mapping.ContainerID},
 		})
 		if err != nil {
 			return err
@@ -71,13 +71,13 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(strin
 		return nil
 	}
 
-	record := rawRecord.(*types.DNSLabel)
+	record := rawRecord.(*types.DNSContainerList)
 
-	if !stringslice.Contains(record.ContainerID, mapping.ContainerID) {
+	if !stringslice.Contains(record.ContainerList, mapping.ContainerID) {
 		if err = txn.Delete(tableName, record); err != nil {
 			return err
 		}
-		record.ContainerID = append(record.ContainerID, mapping.ContainerID)
+		record.ContainerList = append(record.ContainerList, mapping.ContainerID)
 		if err = txn.Insert(tableName, record); err != nil {
 			return err
 		}
@@ -104,10 +104,10 @@ func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(strin
 		return err
 	}
 
-	record := rawRecord.(*types.DNSLabel)
-	record.ContainerID = stringslice.RemoveFirst(record.ContainerID, mapping.ContainerID)
+	record := rawRecord.(*types.DNSContainerList)
+	record.ContainerList = stringslice.RemoveFirst(record.ContainerList, mapping.ContainerID)
 
-	if len(record.ContainerID) == 0 {
+	if len(record.ContainerList) == 0 {
 		if err = cb(mapping.Name, mapping.IP); err != nil {
 			return err
 		}
@@ -137,14 +137,14 @@ func (store *MemoryStore) ReplaceMappings(mappings []*types.DNSMapping, provider
 
 	missingItems := []*types.DNSMapping{}
 	for item := iterator.Next(); item != nil; item = iterator.Next() {
-		dnsLabel := item.(*types.DNSLabel)
-		for _, containerID := range dnsLabel.ContainerID {
+		dnsContainerList := item.(*types.DNSContainerList)
+		for _, containerID := range dnsContainerList.ContainerList {
 			if stringslice.Contains(containerIDs, containerID) {
 				break
 			}
 			missingItems = append(missingItems, &types.DNSMapping{
-				Name:        dnsLabel.Name,
-				IP:          dnsLabel.IP,
+				Name:        dnsContainerList.Name,
+				IP:          dnsContainerList.IP,
 				ContainerID: containerID,
 			})
 		}
