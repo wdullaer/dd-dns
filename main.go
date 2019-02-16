@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -244,20 +245,22 @@ func monitorEvents(state *state, signalChan chan os.Signal) {
 	}
 }
 
-// TODO: make this return an IP type
-func getIP(container *dt.Container, mode string) (string, error) {
+// getIP returns an IP address for a given container. How the IP is determined is driven by mode:
+//   * If mode is `container`: the IP address of the container in the first network is returned
+//   * If mode is an IP address: that IP address is parsed and returned
+func getIP(container *dt.Container, mode string) (net.IP, error) {
 	switch mode {
 	case "container":
 		// TODO: look at a docker label for the network to use (return first if not set)
 		for name, network := range container.NetworkSettings.Networks {
 			log.Printf("[DEBUG] (network: %s, ip: %s)", name, network.IPAddress)
 			if network.IPAddress != "" {
-				return network.IPAddress, nil
+				return net.ParseIP(network.IPAddress), nil
 			}
 		}
-		return "", errors.New("container has no internal IP addresses")
+		return nil, errors.New("container has no internal IP addresses")
 	default:
-		return mode, nil
+		return net.ParseIP(mode), nil
 	}
 }
 

@@ -40,7 +40,7 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 	if len(records) == 0 {
 		dnsRecord := cloudflare.DNSRecord{
 			Name:    mapping.Name,
-			Content: mapping.IP,
+			Content: mapping.IP.String(),
 			Type:    "A",
 		}
 		if _, err = provider.API.CreateDNSRecord(zoneID, dnsRecord); err != nil {
@@ -54,11 +54,11 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 	currentIPs := strings.Split(record.Content, ",")
 
 	for i := range currentIPs {
-		if currentIPs[i] == mapping.IP {
+		if currentIPs[i] == mapping.IP.String() {
 			return nil
 		}
 	}
-	record.Content = strings.Join(append(currentIPs, mapping.IP), ",")
+	record.Content = strings.Join(append(currentIPs, mapping.IP.String()), ",")
 
 	if err = provider.API.UpdateDNSRecord(zoneID, record.ID, record); err != nil {
 		return err
@@ -88,7 +88,7 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 	record := records[0]
 	currentIPs := strings.Split(record.Content, ",")
 
-	index := stringslice.FindIndex(currentIPs, mapping.IP)
+	index := stringslice.FindIndex(currentIPs, mapping.IP.String())
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if index == -1 {
 		log.Printf("[WARN] IP %s is not mapped to hostname %s.", mapping.IP, mapping.Name)
