@@ -97,7 +97,7 @@ func validateDNSContent(dnsContent string) (string, error) {
 	case "container":
 		return "container", nil
 	default:
-		ip := net.IP(dnsContent)
+		ip := net.ParseIP(dnsContent)
 		if ip == nil {
 			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
 		}
