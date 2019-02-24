@@ -13,6 +13,9 @@ type DNSProvider interface {
 
 func getZoneName(hostname string) string {
 	parts := strings.Split(hostname, ".")
+	if len(parts) < 2 {
+		return hostname
+	}
 	parts = parts[len(parts)-2 : len(parts)]
 	return strings.Join(parts, ".")
 }
