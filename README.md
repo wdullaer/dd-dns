@@ -20,6 +20,48 @@ The following limitations apply, not because they are out of scope per se, but b
 * Host IP must be manually specified or the first internal container IP  
   Obtaining the host IP would require running on host or mounting host network on the container and even then a lot of config is required to find the correct one. I think it's just easier for the user to do this up front for now.
 
+## Architecture
+The application relies on 3 core entities:
+
+```
+┌──────────────────────────────────────┐
+│                                      │
+│                                      │
+│                Docker                │
+│                                      │
+│                                      │
+└──────────────────────────────────────┘
+                    │                   
+                    │ Container Events  
+                    ▼                   
+┌──────────────────────────────────────┐
+│                                      │
+│                Store                 │
+│      A Record -> []ContainerID       │
+│                                      │
+│                                      │
+└──────────────────────────────────────┘
+                    │ New A Record      
+                    │ Removed A Record  
+                    ▼                   
+┌──────────────────────────────────────┐
+│                                      │
+│                                      │
+│             DNSProvider              │
+│                                      │
+│                                      │
+└──────────────────────────────────────┘
+```
+
+* **Docker**  
+  The docker daemon supplies the data with which the DNS provider is configured. At startup the current state of the daemon is inquired and processed. Afterwards incremental changes are processed by listening to docker container events.
+* **Store**  
+  The store keeps a mapping of A records to containerIDs. Since an A record can be required by multiple containers, we cannot just blindly update the DNSProvider based on the docker events and need to keep this piece of state
+* **DNSProvider**  
+  The DNSProvider abstracts the interaction with the API of the service provider. It provides methods to insert and remove A records
+
+Currently the Store is responsible for interacting with the DNSProvider. The current store implementations will try to minimize the amount of API calls made to the DNSProvider. The DNSProvider interactions are also executed in a transaction to ensure the internal state is consistent with the remote state at the service provider.
+
 ## TODO / Improvement Idea's
 * [ ] Look up the network which IP address should be taken from a docker label
 * [ ] Look into [viper config library](https://github.com/spf13/viper)
