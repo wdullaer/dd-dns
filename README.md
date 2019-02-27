@@ -20,6 +20,32 @@ The following limitations apply, not because they are out of scope per se, but b
 * Host IP must be manually specified or the first internal container IP  
   Obtaining the host IP would require running on host or mounting host network on the container and even then a lot of config is required to find the correct one. I think it's just easier for the user to do this up front for now.
 
+## Usage
+`dd-dns` is a commandline application. A full list of options is available through:
+
+```bash
+dd-dns --help
+```
+
+Options can be passed in as commandline flags or environment variables.
+Commandline flags take precedence over environment variables.
+
+### Options
+* **account-name**  
+    The account-name (or equivalent) to be used for authenticating with the DNS provider (env: `ACCOUNT_NAME`)
+* **account-secret**  
+    The account-secret (or equivalent) to be used for authenticating with the DNS provider (env: `ACCOUNT_SECRET`)
+* **dns-content**  
+    The IP address to be added to the DNS content (env: `DNS_CONTENT`, default: `container`, oneOf: [`container`, `<ipv4>`])
+* **docker-label**  
+    The docker label that contains the domain name (env: `DOCKER_LABEL`, default: `caddy.address`)
+* **provider**  
+    The DNS provider to register the domain names with (env: `PROVIDER`, default: `cloudflare`, oneOf: [`cloudflare`, `dryrun`])
+* **store**  
+    The store implemenation that persists the internal state (env: `STORE`, default: `memory`, oneOf: [`memory`, `boltdb`])
+
+
+
 ## Architecture
 The application relies on 3 core entities:
 
