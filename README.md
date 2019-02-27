@@ -20,6 +20,15 @@ The following limitations apply, not because they are out of scope per se, but b
 * Host IP must be manually specified or the first internal container IP  
   Obtaining the host IP would require running on host or mounting host network on the container and even then a lot of config is required to find the correct one. I think it's just easier for the user to do this up front for now.
 
+## Installation
+You can download the latest release for your platform from the [releases page on github](https://github.com/wdullaer/dd-dns/releases)
+
+Alternatily a pre-built docker image is available on docker hub:
+
+```bash
+docker run -v /var/run/docker.sock:/var/run/docker.sock:ro wdullaer/dd-dns
+```
+
 ## Usage
 `dd-dns` is a commandline application. A full list of options is available through:
 
