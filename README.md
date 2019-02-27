@@ -62,6 +62,18 @@ The application relies on 3 core entities:
 
 Currently the Store is responsible for interacting with the DNSProvider. The current store implementations will try to minimize the amount of API calls made to the DNSProvider. The DNSProvider interactions are also executed in a transaction to ensure the internal state is consistent with the remote state at the service provider.
 
+## Build
+
+### Native
+```bash
+go build
+```
+
+### Docker
+```bash
+docker build .
+```
+
 ## TODO / Improvement Idea's
 * [ ] Look up the network which IP address should be taken from a docker label
 * [ ] Look into [viper config library](https://github.com/spf13/viper)
