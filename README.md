@@ -52,6 +52,8 @@ Commandline flags take precedence over environment variables.
     The DNS provider to register the domain names with (env: `PROVIDER`, default: `cloudflare`, oneOf: [`cloudflare`, `dryrun`])
 * **store**  
     The store implemenation that persists the internal state (env: `STORE`, default: `memory`, oneOf: [`memory`, `boltdb`])
+* **debug-logger**  
+    Set to use human readable logs, rather than structured logs (default: false)
 
 
 
