@@ -1,21 +1,21 @@
 package store
 
 import (
-	"log"
-
 	memdb "github.com/hashicorp/go-memdb"
 	"github.com/wdullaer/docker-dns-updater/dns"
 	"github.com/wdullaer/docker-dns-updater/stringslice"
 	"github.com/wdullaer/docker-dns-updater/types"
+	"go.uber.org/zap"
 )
 
 const tableName = "dns-mapping"
 
 type MemoryStore struct {
-	db *memdb.MemDB
+	db     *memdb.MemDB
+	logger *zap.SugaredLogger
 }
 
-func NewMemoryStore() (*MemoryStore, error) {
+func NewMemoryStore(logger *zap.SugaredLogger) (*MemoryStore, error) {
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
 			tableName: &memdb.TableSchema{
@@ -40,7 +40,7 @@ func NewMemoryStore() (*MemoryStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &MemoryStore{db: db}, nil
+	return &MemoryStore{db: db, logger: logger.Named("memory-store")}, nil
 }
 
 func (*MemoryStore) CleanUp() {}
@@ -55,7 +55,7 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(*type
 	}
 
 	if rawRecord == nil {
-		log.Println("[INFO] Insert record into DNS")
+		store.logger.Info("Insert record into DNS")
 		if err = cb(mapping); err != nil {
 			return err
 		}
@@ -96,7 +96,7 @@ func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(*type
 		return err
 	}
 	if rawRecord == nil {
-		log.Printf("[WARN] Trying to remove non-existing DNS-container mapping. (containerID: %s)", mapping.ContainerID)
+		store.logger.Warnw("Trying to remove non-existing DNS-container mapping. (containerID: %s)", "containerID", mapping.ContainerID)
 		return nil
 	}
 

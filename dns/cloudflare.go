@@ -1,27 +1,27 @@
 package dns
 
 import (
-	"log"
 	"strings"
 
 	cloudflare "github.com/cloudflare/cloudflare-go"
 	"github.com/wdullaer/docker-dns-updater/stringslice"
 	"github.com/wdullaer/docker-dns-updater/types"
+	"go.uber.org/zap"
 )
 
 type CloudflareProvider struct {
-	API *cloudflare.API
-	// TODO: Maybe add private variable with local cache of remote table
+	API    *cloudflare.API
+	logger *zap.SugaredLogger
 }
 
 const cloudflareEndpoint = "https://api.cloudflare.com/client/v4/"
 
-func NewCloudflareProvider(email string, token string) (*CloudflareProvider, error) {
+func NewCloudflareProvider(email string, token string, logger *zap.SugaredLogger) (*CloudflareProvider, error) {
 	api, err := cloudflare.New(token, email)
 	if err != nil {
 		return nil, err
 	}
-	return &CloudflareProvider{API: api}, nil
+	return &CloudflareProvider{API: api, logger: logger.Named("cloudflare-dns")}, nil
 }
 
 func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
@@ -81,7 +81,7 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if len(records) == 0 {
-		log.Printf("[WARN] No records exist for hostname %s.", mapping.Name)
+		provider.logger.Warnw("No records exist for hostname", "hostname", mapping.Name)
 		return nil
 	}
 
@@ -91,7 +91,7 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 	index := stringslice.FindIndex(currentIPs, mapping.IP.String())
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if index == -1 {
-		log.Printf("[WARN] IP %s is not mapped to hostname %s.", mapping.IP, mapping.Name)
+		provider.logger.Warnw("IP is not mapped to hostname ", "mapping", mapping)
 		return nil
 	}
 

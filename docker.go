@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 
 	dt "github.com/docker/docker/api/types"
@@ -29,7 +28,7 @@ func syncDNSWithDocker(state *State) error {
 	for i, container := range containerList {
 		ip, err := getIP(&container, state.Config.DNSContent)
 		if err != nil {
-			log.Printf("[Error] Failed to obtain IP address for container %s: %s", container.ID, err)
+			state.Logger.Errorw("Failed to obtain IP address for container", "containerId", container.ID, "err", err)
 			continue
 		}
 		mappingList[i] = &types.DNSMapping{
@@ -45,13 +44,13 @@ func syncDNSWithDocker(state *State) error {
 func processDockerEvent(event events.Message, state *State) error {
 	container, err := getContainerByID(state.DockerClient, event.Actor.ID)
 	if err != nil {
-		log.Printf("[ERROR] Could not obtain container details: %s", err)
+		state.Logger.Errorw("Could not obtain container details", "err", err)
 		return nil
 	}
 
 	ip, err := getIP(container, state.Config.DNSContent)
 	if err != nil {
-		log.Printf("[ERROR] Could not obtain container IP: %s", err)
+		state.Logger.Errorw("Could not obtain container IP", "err", err)
 		return nil
 	}
 
@@ -63,19 +62,19 @@ func processDockerEvent(event events.Message, state *State) error {
 
 	switch event.Action {
 	case "start":
-		log.Printf("[INFO] Insert into store and DNS provider")
+		state.Logger.Infow("Insert into store and DNS provider", "mapping", mapping)
 		err = state.Store.InsertMapping(mapping, state.Provider.AddHostnameMapping)
 		if err != nil {
 			return err
 		}
 	case "die":
-		log.Printf("[INFO] Remove from store and DNS provider")
+		state.Logger.Infow("Remove from store and DNS provider", "mapping", mapping)
 		err := state.Store.RemoveMapping(mapping, state.Provider.RemoveHostnameMapping)
 		if err != nil {
 			return err
 		}
 	default:
-		log.Printf("[WARN] Unsupported event")
+		state.Logger.Warnw("Unsupported event", "event", event.Action)
 	}
 
 	return nil
@@ -123,8 +122,7 @@ func getIP(container *dt.Container, mode string) (net.IP, error) {
 	switch mode {
 	case "container":
 		// TODO: look at a docker label for the network to use (return first if not set)
-		for name, network := range container.NetworkSettings.Networks {
-			log.Printf("[DEBUG] (network: %s, ip: %s)", name, network.IPAddress)
+		for _, network := range container.NetworkSettings.Networks {
 			if network.IPAddress != "" {
 				return net.ParseIP(network.IPAddress), nil
 			}

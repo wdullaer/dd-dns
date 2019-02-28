@@ -13,18 +13,20 @@ type config struct {
 	DNSContent    string `json:"dns-content"`
 	DockerLabel   string `json:"docker-label"`
 	Store         string `json:"store"`
+	DebugLogger   bool   `json:"debug-logger"`
 	// TODO: Add config entry for default docker network to use when DNSContent is container
 }
 
 func (c *config) String() string {
 	return fmt.Sprintf(
-		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\", \"store\": \"%s\"}",
+		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\", \"store\": \"%s\", \"debug-logger\": \"%t\"}",
 		c.Provider,
 		c.AccountName,
 		"****",
 		c.DNSContent,
 		c.DockerLabel,
 		c.Store,
+		c.DebugLogger,
 	)
 }
 

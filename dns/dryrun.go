@@ -1,23 +1,25 @@
 package dns
 
 import (
-	"log"
 	"net"
 	"strings"
+
+	"go.uber.org/zap"
 
 	"github.com/wdullaer/docker-dns-updater/types"
 )
 
 type DryrunProvider struct {
-	Zone map[string][]net.IP
+	Zone   map[string][]net.IP
+	logger *zap.SugaredLogger
 }
 
-func NewDryrunProvider() (*DryrunProvider, error) {
-	return &DryrunProvider{Zone: map[string][]net.IP{}}, nil
+func NewDryrunProvider(logger *zap.SugaredLogger) (*DryrunProvider, error) {
+	return &DryrunProvider{Zone: map[string][]net.IP{}, logger: logger.Named("dryrun-dns")}, nil
 }
 
 func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
-	log.Printf("[INFO] Dryrun - Adding mapping: %s\tA\t%s", mapping.Name, mapping.IP)
+	provider.logger.Infow("Adding mapping", "mapping", mapping)
 	if len(provider.Zone[mapping.Name]) == 0 {
 		provider.Zone[mapping.Name] = []net.IP{mapping.IP}
 	} else {
@@ -25,17 +27,17 @@ func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) er
 			provider.Zone[mapping.Name] = append(provider.Zone[mapping.Name], mapping.IP)
 		}
 	}
-	log.Printf("[INFO] Dryrun - Resulting record: %s\tA\t%s", mapping.Name, stringify(provider.Zone[mapping.Name]))
+	provider.logger.Infow("Resulting record", "hostname", mapping.Name, "record", stringify(provider.Zone[mapping.Name]))
 	return nil
 }
 
 func (provider *DryrunProvider) RemoveHostnameMapping(mapping *types.DNSMapping) error {
-	log.Printf("[INFO] Dryrun - Removing mapping: %s\tA\t%s", mapping.Name, mapping.IP)
+	provider.logger.Infow("Removing mapping", "mapping", mapping)
 	record := provider.Zone[mapping.Name]
 	index := findIPIndex(record, mapping.IP)
 	if index == -1 {
 		// Should never happen
-		log.Printf("[WARN] Dryrun - Attemting to remove a non mapped IP")
+		provider.logger.Warn("Attemting to remove a non mapped IP")
 		return nil
 	}
 	if len(record) == 1 {
@@ -44,7 +46,7 @@ func (provider *DryrunProvider) RemoveHostnameMapping(mapping *types.DNSMapping)
 		record[index] = record[len(record)-1]
 		provider.Zone[mapping.Name] = record[:len(record)-1]
 	}
-	log.Printf("[INFO] Dryrun - Resulting record: %s\tA\t%s", mapping.Name, stringify(provider.Zone[mapping.Name]))
+	provider.logger.Infow("Resulting record", "hostname", mapping.Name, "record", stringify(provider.Zone[mapping.Name]))
 	return nil
 }
 

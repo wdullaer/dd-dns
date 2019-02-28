@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
 	docker "github.com/docker/docker/client"
 	"github.com/wdullaer/docker-dns-updater/dns"
 	"github.com/wdullaer/docker-dns-updater/store"
+	"go.uber.org/zap"
 )
 
 // State is a type that serves as a container for all the state the program
@@ -19,43 +19,61 @@ type State struct {
 	Provider     dns.DNSProvider
 	DockerClient *docker.Client
 	Store        store.Store
+	Logger       *zap.SugaredLogger
 }
 
 // NewState returns a fully initialised application State baed on the
 // configuration options
-func NewState(config *config) (*State, error) {
+func NewState(config *config, logger *zap.SugaredLogger) (*State, error) {
 	state := &State{
 		Config: config,
+		Logger: logger,
 	}
 
 	// Connect to docker daemon
-	log.Println("[INFO] Connecting to docker")
+	state.Logger.Infow("Connecting to docker")
 	dockerClient, err := getDockerClient()
 	if err != nil {
 		return nil, err
 	}
 	state.DockerClient = dockerClient
-	log.Println("[INFO] Connected to docker")
+	state.Logger.Infow("Connected to docker")
 
 	// Create the DNSProvider
-	log.Printf("[INFO] Connecting to DNS Provider: %s", config.Provider)
-	provider, err := getDNSProvider(config)
+	state.Logger.Infow("Connecting to DNS Provider", "provider", config.Provider)
+	provider, err := getDNSProvider(config, logger)
 	if err != nil {
 		return nil, err
 	}
 	state.Provider = provider
-	log.Printf("[INFO] Connected to DNS Provider: %s", config.Provider)
+	state.Logger.Infow("Connected to DNS Provider", "provider", config.Provider)
 
 	// Create the store
-	log.Printf("[INFO] Connecting to Store: %s", config.Store)
-	db, err := getStore(config)
+	state.Logger.Infow("Connecting to Store", "store", config.Store)
+	db, err := getStore(config, logger)
 	if err != nil {
 		return nil, err
 	}
 	state.Store = db
-	log.Printf("[INFO] Connected to Store: %s", state.Config.Store)
+	state.Logger.Infow("Connected to Store", "store", state.Config.Store)
 
 	return state, nil
+}
+
+func getLogger(config *config) (*zap.SugaredLogger, error) {
+	var logger *zap.Logger
+	var err error
+
+	if config.DebugLogger {
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return logger.Named("dd-dns").Sugar(), nil
 }
 
 func getDockerClient() (*docker.Client, error) {
@@ -73,24 +91,24 @@ func getDockerClient() (*docker.Client, error) {
 	return dockerClient, nil
 }
 
-func getDNSProvider(config *config) (dns.DNSProvider, error) {
+func getDNSProvider(config *config, logger *zap.SugaredLogger) (dns.DNSProvider, error) {
 	switch config.Provider {
 	case "cloudflare":
-		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret)
+		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret, logger)
 	case "dryrun":
-		return dns.NewDryrunProvider()
+		return dns.NewDryrunProvider(logger)
 	default:
 		// Since we are eagerly validating the config, this should never happen
 		return nil, fmt.Errorf("Invalid provider specified: %s", config.Provider)
 	}
 }
 
-func getStore(config *config) (store.Store, error) {
+func getStore(config *config, logger *zap.SugaredLogger) (store.Store, error) {
 	switch config.Store {
 	case "memory":
-		return store.NewMemoryStore()
+		return store.NewMemoryStore(logger)
 	case "boltdb":
-		return store.NewBoltDBStore()
+		return store.NewBoltDBStore(logger)
 	default:
 		// Since we are eagerly validating the config, this should never happen
 		return nil, fmt.Errorf("Invalid store specified: %s", config.Store)

@@ -2,21 +2,22 @@ package store
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/boltdb/bolt"
 	"github.com/wdullaer/docker-dns-updater/dns"
 	"github.com/wdullaer/docker-dns-updater/stringslice"
 	"github.com/wdullaer/docker-dns-updater/types"
+	"go.uber.org/zap"
 )
 
 const bucketName = "dns-mapping"
 
 type BoltDBStore struct {
-	db *bolt.DB
+	db     *bolt.DB
+	logger *zap.SugaredLogger
 }
 
-func NewBoltDBStore() (*BoltDBStore, error) {
+func NewBoltDBStore(logger *zap.SugaredLogger) (*BoltDBStore, error) {
 	db, err := bolt.Open("docker-dns-updater.db", 0600, nil)
 	if err != nil {
 		return nil, err
@@ -33,11 +34,11 @@ func NewBoltDBStore() (*BoltDBStore, error) {
 		return nil, err
 	}
 
-	return &BoltDBStore{db: db}, nil
+	return &BoltDBStore{db: db, logger: logger.Named("boltdb-store")}, nil
 }
 
 func (store *BoltDBStore) CleanUp() {
-	log.Printf("[INFO] Close boltdb connection")
+	store.logger.Info("Close boltdb connection")
 	store.db.Close()
 }
 
@@ -92,7 +93,7 @@ func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB f
 		rawRecord := bucket.Get(dnsMapping.GetKey())
 
 		if rawRecord == nil {
-			log.Println("[WARN] BoltDBStore - Tried to remove a mapping that was not present in the store")
+			store.logger.Warn("BoltDBStore - Tried to remove a mapping that was not present in the store")
 			return nil
 		}
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -9,28 +8,23 @@ import (
 )
 
 func main() {
-	// Load and validate the configuration
-	flag.Parse()
-	configuration := &config{
-		Provider:      *provider,
-		AccountName:   *accountName,
-		AccountSecret: *accountSecret,
-		DNSContent:    *dnsContent,
-		DockerLabel:   *dockerLabel,
-		Store:         *storeName,
+	// Load initial configuration
+	configuration := parseFlags()
+	logger, err := getLogger(configuration)
+	if err != nil {
+		log.Fatalf("[FATAL] Failed to instantiate logger: %s", err)
 	}
+
+	// Validate the configuration
 	if errs := configuration.Validate(); len(errs) != 0 {
-		for i := range errs {
-			log.Printf("[FATAL] Invalid configuration value: %s", errs[i])
-		}
-		os.Exit(1)
+		logger.Fatalw("Invalid configuration values", "errors", errs)
 	}
-	log.Printf("[INFO] Using configuration: %s", configuration)
+	logger.Infow("Using configuration", "configuration", configuration)
 
 	// Initialize application state
-	state, err := NewState(configuration)
+	state, err := NewState(configuration, logger)
 	if err != nil {
-		log.Fatalf("[FATAL] Failed to initialize application: %s", err)
+		logger.Fatalw("Failed to initialize application", "err", err)
 	}
 	defer state.Store.CleanUp()
 
@@ -47,13 +41,13 @@ main:
 		case event := <-eventChan:
 			err := processDockerEvent(event, state)
 			if err != nil {
-				log.Fatalf("[FATAL] Failed to process docker event: %s", err)
+				state.Logger.Errorw("Failed to process docker event", "err", err)
 			}
 		case err := <-errorChan:
-			log.Fatalf("[FATAL] Received a docker error: %s", err)
+			state.Logger.Fatalw("Received a docker error", "err", err)
 			break main
 		case sig := <-signalChan:
-			log.Printf("[INFO] Received signal to terminate: %s", sig)
+			state.Logger.Infow("Received signal to terminate", "sig", sig)
 			break main
 		}
 	}

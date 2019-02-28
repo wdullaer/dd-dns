@@ -112,5 +112,4 @@ docker build .
 ## TODO / Improvement Idea's
 * [ ] Look up the network which IP address should be taken from a docker label
 * [ ] Look into [viper config library](https://github.com/spf13/viper)
-* [ ] Move to a better designed logging library like https://github.com/hashicorp/go-hclog
 * [ ] Look into implementing DNS providers via a plugin using the [hashicorp plugin rpc](https://github.com/hashicorp/go-plugin)
