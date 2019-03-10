@@ -17,4 +17,4 @@ FROM alpine:latest
 
 CMD ["/dd-dns", "--data-directory", "/data"]
 VOLUME /data
-COPY --from=builder /app/dd-dns/docker-dns-updater /dd-dns
+COPY --from=builder /app/dd-dns/dd-dns /dd-dns

@@ -3,7 +3,7 @@ package dns
 import (
 	"strings"
 
-	"github.com/wdullaer/docker-dns-updater/types"
+	"github.com/wdullaer/dd-dns/types"
 )
 
 type DNSProvider interface {

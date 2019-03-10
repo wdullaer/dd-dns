@@ -1,8 +1,8 @@
 package store
 
 import (
-	"github.com/wdullaer/docker-dns-updater/dns"
-	"github.com/wdullaer/docker-dns-updater/types"
+	"github.com/wdullaer/dd-dns/dns"
+	"github.com/wdullaer/dd-dns/types"
 )
 
 type Store interface {

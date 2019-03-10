@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	cloudflare "github.com/cloudflare/cloudflare-go"
-	"github.com/wdullaer/docker-dns-updater/stringslice"
-	"github.com/wdullaer/docker-dns-updater/types"
+	"github.com/wdullaer/dd-dns/stringslice"
+	"github.com/wdullaer/dd-dns/types"
 	"go.uber.org/zap"
 )
 

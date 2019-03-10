@@ -6,7 +6,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/wdullaer/docker-dns-updater/types"
+	"github.com/wdullaer/dd-dns/types"
 )
 
 type DryrunProvider struct {

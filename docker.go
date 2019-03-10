@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
-	"github.com/wdullaer/docker-dns-updater/types"
+	"github.com/wdullaer/dd-dns/types"
 )
 
 func syncDNSWithDocker(state *State) error {

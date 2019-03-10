@@ -1,5 +1,5 @@
 # Docker DNS Updater
-`docker-dns-updater` is a utility that will create and update DNS A records in a DNS provider based on label data from running containers.
+`dd-dns` is a utility that will create and update DNS A records in a DNS provider based on label data from running containers.
 
 It is meant to be used in parallel with a reverse proxy like [traefik](https://traefik.io) or [caddy](https://github.com/lucaslorentz/caddy-docker-proxy): you can expose multiple services with a unique name on the same host. While you can also use this tool for cloud native service discovery, there are more battle tested tools out there (such as [consul](https://consul.io))
 

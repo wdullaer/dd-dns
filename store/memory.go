@@ -2,9 +2,9 @@ package store
 
 import (
 	memdb "github.com/hashicorp/go-memdb"
-	"github.com/wdullaer/docker-dns-updater/dns"
-	"github.com/wdullaer/docker-dns-updater/stringslice"
-	"github.com/wdullaer/docker-dns-updater/types"
+	"github.com/wdullaer/dd-dns/dns"
+	"github.com/wdullaer/dd-dns/stringslice"
+	"github.com/wdullaer/dd-dns/types"
 	"go.uber.org/zap"
 )
 

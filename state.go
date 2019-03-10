@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	docker "github.com/docker/docker/client"
-	"github.com/wdullaer/docker-dns-updater/dns"
-	"github.com/wdullaer/docker-dns-updater/store"
+	"github.com/wdullaer/dd-dns/dns"
+	"github.com/wdullaer/dd-dns/store"
 	"go.uber.org/zap"
 )
 
