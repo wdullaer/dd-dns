@@ -13,6 +13,7 @@ require (
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.0.0 // indirect
 	github.com/hashicorp/go-memdb v0.0.0-20181108192425-032f93b25bec
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/pkg/errors v0.8.1
@@ -25,5 +26,7 @@ require (
 	golang.org/x/net v0.0.0-20190108155000-395948e2f546 // indirect
 	golang.org/x/sys v0.0.0-20190226215855-775f8194d0f9 // indirect
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/yaml.v2 v2.2.2 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )

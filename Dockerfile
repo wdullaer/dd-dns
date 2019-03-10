@@ -2,8 +2,15 @@ FROM golang:1.12-alpine AS builder
 
 WORKDIR /app/dd-dns
 RUN apk --update add git
-COPY . .
 
+# Download the dependencies first, they don't change often
+# Doing this improves caching and build times
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
+# Copy remaining files and build the binary
+COPY . .
 RUN go build
 
 FROM alpine:latest
