@@ -5,6 +5,8 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"go.uber.org/zap/zapcore"
 )
 
 type config struct {
@@ -31,6 +33,17 @@ func (c *config) String() string {
 		c.DebugLogger,
 		c.DataDirectory,
 	)
+}
+func (c *config) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+	enc.AddString("provider", c.Provider)
+	enc.AddString("account-name", c.AccountName)
+	enc.AddString("account-secret", "****")
+	enc.AddString("dns-content", c.DNSContent)
+	enc.AddString("docker-label", c.DockerLabel)
+	enc.AddString("store", c.Store)
+	enc.AddBool("debug-logger", c.DebugLogger)
+	enc.AddString("data-directory", c.DataDirectory)
+	return nil
 }
 
 // Validate checks each Property of config and provides default values
