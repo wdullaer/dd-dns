@@ -8,5 +8,6 @@ RUN go build
 
 FROM alpine:latest
 
-CMD ["/dd-dns"]
+CMD ["/dd-dns", "--data-directory", "/data"]
+VOLUME /data
 COPY --from=builder /app/dd-dns/docker-dns-updater /dd-dns

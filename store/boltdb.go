@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"path/filepath"
 
 	"github.com/boltdb/bolt"
 	"github.com/wdullaer/docker-dns-updater/dns"
@@ -17,8 +18,8 @@ type BoltDBStore struct {
 	logger *zap.SugaredLogger
 }
 
-func NewBoltDBStore(logger *zap.SugaredLogger) (*BoltDBStore, error) {
-	db, err := bolt.Open("docker-dns-updater.db", 0600, nil)
+func NewBoltDBStore(logger *zap.SugaredLogger, dataDir string) (*BoltDBStore, error) {
+	db, err := bolt.Open(filepath.Join(dataDir, "dd-dns.db"), 0600, nil)
 	if err != nil {
 		return nil, err
 	}

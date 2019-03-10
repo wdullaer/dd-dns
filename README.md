@@ -26,7 +26,7 @@ You can download the latest release for your platform from the [releases page on
 Alternatily a pre-built docker image is available on docker hub:
 
 ```bash
-docker run -v /var/run/docker.sock:/var/run/docker.sock:ro wdullaer/dd-dns
+docker run -v /var/run/docker.sock:/var/run/docker.sock:ro -v /some/directory:/data wdullaer/dd-dns
 ```
 
 ## Usage
@@ -54,8 +54,8 @@ Commandline flags take precedence over environment variables.
     The store implemenation that persists the internal state (env: `STORE`, default: `memory`, oneOf: [`memory`, `boltdb`])
 * **debug-logger**  
     Set to use human readable logs, rather than structured logs (default: false)
-
-
+* **data-directory**
+    The directory where any persistent state is stored (env: `DATA_DIRECTORY`, default: `pwd`)
 
 ## Architecture
 The application relies on 3 core entities:

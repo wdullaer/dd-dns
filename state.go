@@ -108,7 +108,7 @@ func getStore(config *config, logger *zap.SugaredLogger) (store.Store, error) {
 	case "memory":
 		return store.NewMemoryStore(logger)
 	case "boltdb":
-		return store.NewBoltDBStore(logger)
+		return store.NewBoltDBStore(logger, config.DataDirectory)
 	default:
 		// Since we are eagerly validating the config, this should never happen
 		return nil, fmt.Errorf("Invalid store specified: %s", config.Store)

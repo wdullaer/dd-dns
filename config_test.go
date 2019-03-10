@@ -27,6 +27,10 @@ func TestConfigValidate(t *testing.T) {
 		t.Log("Store should have a default value")
 		t.Fail()
 	}
+	if input.DataDirectory == "" {
+		t.Log("DataDirectory should have a default value")
+		t.Fail()
+	}
 
 	// Should return all errors
 	input = config{
@@ -294,5 +298,27 @@ func TestValidateStore(t *testing.T) {
 			t.Logf("Expected `%s` to equal `%s`", output, tc.expected)
 			t.Fail()
 		}
+	}
+}
+
+func TestValidateDataDirectory(t *testing.T) {
+	output, err := validateDataDirectory("")
+	if err != nil {
+		t.Log("Expected `validateDataDirectory` with input `` to not return an error")
+		t.Fail()
+	}
+	if output == "" {
+		t.Log("Expected validateDataDirectory to provide a default value")
+		t.Fail()
+	}
+
+	output, err = validateDataDirectory("foo")
+	if err != nil {
+		t.Log("Expected `validateDataDirectory` with input `foo` to not return an error")
+		t.Fail()
+	}
+	if output != "foo" {
+		t.Logf("Expected `%s` to equal `foo`", output)
+		t.Fail()
 	}
 }

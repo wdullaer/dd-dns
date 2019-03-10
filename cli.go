@@ -26,6 +26,7 @@ func parseFlags() *config {
 		dockerLabel   = flag.String("docker-label", os.Getenv("DOCKER_LABEL"), "The docker label that contains the domain name (env: `DOCKER_LABEL`, default: `caddy.address`)")
 		storeName     = flag.String("store", os.Getenv("STORE"), "The store implemenation that persists the internal state (env: `STORE`, default: `memory`, oneOf: [`memory`, `boltdb`])")
 		debugLogger   = flag.Bool("debug-logger", false, "Set to use human readable logs, rather than structured logs (default: `false`)")
+		dataDirectory = flag.String("data-directory", os.Getenv("DATA_DIRECTORY"), "The directory where any persistent state is stored (env: `DATA_DIRECTORY`, default: `pwd`)")
 	)
 
 	flag.Usage = func() {
@@ -43,5 +44,6 @@ func parseFlags() *config {
 		DockerLabel:   *dockerLabel,
 		Store:         *storeName,
 		DebugLogger:   *debugLogger,
+		DataDirectory: *dataDirectory,
 	}
 }

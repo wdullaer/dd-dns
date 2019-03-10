@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -14,12 +15,13 @@ type config struct {
 	DockerLabel   string `json:"docker-label"`
 	Store         string `json:"store"`
 	DebugLogger   bool   `json:"debug-logger"`
+	DataDirectory string `json:"data-directory"`
 	// TODO: Add config entry for default docker network to use when DNSContent is container
 }
 
 func (c *config) String() string {
 	return fmt.Sprintf(
-		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\", \"store\": \"%s\", \"debug-logger\": \"%t\"}",
+		"{\"provider\": \"%s\", \"account-name\": \"%s\", \"account-secret\": \"%s\", \"dns-content\": \"%s\", \"dns-label\": \"%s\", \"store\": \"%s\", \"debug-logger\": \"%t\", \"data-directory\": \"%s\"}",
 		c.Provider,
 		c.AccountName,
 		"****",
@@ -27,6 +29,7 @@ func (c *config) String() string {
 		c.DockerLabel,
 		c.Store,
 		c.DebugLogger,
+		c.DataDirectory,
 	)
 }
 
@@ -62,6 +65,11 @@ func (c *config) Validate() []error {
 		errs = append(errs, err)
 	} else {
 		c.Store = value
+	}
+	if value, err := validateDataDirectory(c.DataDirectory); err != nil {
+		errs = append(errs, err)
+	} else {
+		c.DataDirectory = value
 	}
 	return errs
 }
@@ -121,6 +129,7 @@ func validateDockerLabel(dockerLabel string) (string, error) {
 	return dockerLabel, nil
 }
 
+// validateStore normalizes Store and checks that it is part of the list of allowable values
 func validateStore(store string) (string, error) {
 	switch sanitize(store) {
 	case "memory":
@@ -132,6 +141,17 @@ func validateStore(store string) (string, error) {
 	default:
 		return "", fmt.Errorf("Invalid store `%s` provided. Available store implementations: [`memory`, `boltdb`]", store)
 	}
+}
+
+// validateDataDirectory sets a default, any other value is valid
+func validateDataDirectory(directory string) (string, error) {
+	if directory == "" {
+		return os.Getwd()
+	}
+	// Further validation of the data directory will happen implicitly
+	// when Boltdb tries to access or create its data file
+	// This value should be ignored if memorydb is used
+	return directory, nil
 }
 
 func sanitize(value string) string {
