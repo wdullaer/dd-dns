@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// CloudflareProvider implements the DNSProvider interface for Cloudflare
 type CloudflareProvider struct {
 	API    *cloudflare.API
 	logger *zap.SugaredLogger
@@ -16,6 +17,7 @@ type CloudflareProvider struct {
 
 const cloudflareEndpoint = "https://api.cloudflare.com/client/v4/"
 
+// NewCloudflareProvider generates a CloudflareProvider using the given credentials
 func NewCloudflareProvider(email string, token string, logger *zap.SugaredLogger) (*CloudflareProvider, error) {
 	api, err := cloudflare.New(token, email)
 	if err != nil {
@@ -24,6 +26,9 @@ func NewCloudflareProvider(email string, token string, logger *zap.SugaredLogger
 	return &CloudflareProvider{API: api, logger: logger.Named("cloudflare-dns")}, nil
 }
 
+// AddHostnameMapping adds the given DNSMapping to an A record
+// In case an A record already exists, it will append the mapping, trying to keep the current information intact
+// It will not modify any records that are not A records.
 func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
 	zoneName := getZoneName(mapping.Name)
 
@@ -67,6 +72,9 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 	return nil
 }
 
+// RemoveHostnameMapping will remove the given DNSMapping from an A record
+// In case no A record or no mapping exists, the call will succeed, given that the required has already been achieved
+// It will not modify any records that are not A records
 func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapping) error {
 	zoneName := getZoneName(mapping.Name)
 

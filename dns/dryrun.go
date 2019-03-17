@@ -9,15 +9,21 @@ import (
 	"github.com/wdullaer/dd-dns/types"
 )
 
+// DryrunProvider simulates a public DNS provider using an in memory map
+// As the name suggests, it is useful in tests and to validate settings
 type DryrunProvider struct {
 	Zone   map[string][]net.IP
 	logger *zap.SugaredLogger
 }
 
+// NewDryrunProvider generates a DryrunProvider
 func NewDryrunProvider(logger *zap.SugaredLogger) (*DryrunProvider, error) {
 	return &DryrunProvider{Zone: map[string][]net.IP{}, logger: logger.Named("dryrun-dns")}, nil
 }
 
+// AddHostnameMapping adds the given DNSMapping to an A record
+// In case an A record already exists, it will append the mapping, trying to keep the current information intact
+// It will not modify any records that are not A records.
 func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
 	provider.logger.Infow("Adding mapping", "mapping", mapping)
 	if len(provider.Zone[mapping.Name]) == 0 {
@@ -31,6 +37,9 @@ func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) er
 	return nil
 }
 
+// RemoveHostnameMapping will remove the given DNSMapping from an A record
+// In case no A record or no mapping exists, the call will succeed, given that the required has already been achieved
+// It will not modify any records that are not A records
 func (provider *DryrunProvider) RemoveHostnameMapping(mapping *types.DNSMapping) error {
 	provider.logger.Infow("Removing mapping", "mapping", mapping)
 	record := provider.Zone[mapping.Name]

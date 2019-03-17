@@ -16,7 +16,7 @@ import (
 // and can act as a poor mans named parameters
 type State struct {
 	Config       *config
-	Provider     dns.DNSProvider
+	Provider     dns.Provider
 	DockerClient *docker.Client
 	Store        store.Store
 	Logger       *zap.SugaredLogger
@@ -39,7 +39,7 @@ func NewState(config *config, logger *zap.SugaredLogger) (*State, error) {
 	state.DockerClient = dockerClient
 	state.Logger.Infow("Connected to docker")
 
-	// Create the DNSProvider
+	// Create the Provider
 	state.Logger.Infow("Connecting to DNS Provider", "provider", config.Provider)
 	provider, err := getDNSProvider(config, logger)
 	if err != nil {
@@ -91,7 +91,7 @@ func getDockerClient() (*docker.Client, error) {
 	return dockerClient, nil
 }
 
-func getDNSProvider(config *config, logger *zap.SugaredLogger) (dns.DNSProvider, error) {
+func getDNSProvider(config *config, logger *zap.SugaredLogger) (dns.Provider, error) {
 	switch config.Provider {
 	case "cloudflare":
 		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret, logger)

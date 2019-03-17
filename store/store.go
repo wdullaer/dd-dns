@@ -12,5 +12,5 @@ type Store interface {
 	// Replaces all of the DNS mappings with the ones passed to this method
 	// The Store will try to minimize the amount of calls it makes to the provider
 	// by diffing its current state with the required state
-	ReplaceMappings(mappings []*types.DNSMapping, provider dns.DNSProvider) error
+	ReplaceMappings(mappings []*types.DNSMapping, provider dns.Provider) error
 }

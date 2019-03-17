@@ -121,7 +121,7 @@ func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(*type
 	return nil
 }
 
-func (store *MemoryStore) ReplaceMappings(mappings []*types.DNSMapping, provider dns.DNSProvider) error {
+func (store *MemoryStore) ReplaceMappings(mappings []*types.DNSMapping, provider dns.Provider) error {
 	txn := store.db.Txn(false)
 	defer txn.Abort()
 

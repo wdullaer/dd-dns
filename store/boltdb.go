@@ -123,7 +123,7 @@ func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB f
 	})
 }
 
-func (store *BoltDBStore) ReplaceMappings(mappings []*types.DNSMapping, provider dns.DNSProvider) error {
+func (store *BoltDBStore) ReplaceMappings(mappings []*types.DNSMapping, provider dns.Provider) error {
 	missingItems := []*types.DNSMapping{}
 	err := store.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))

@@ -6,7 +6,8 @@ import (
 	"github.com/wdullaer/dd-dns/types"
 )
 
-type DNSProvider interface {
+// Provider provides a common abstraction over the APIs of various DNS services
+type Provider interface {
 	AddHostnameMapping(mapping *types.DNSMapping) error
 	RemoveHostnameMapping(mapping *types.DNSMapping) error
 }
