@@ -13,11 +13,13 @@ import (
 
 const bucketName = "dns-mapping"
 
+// BoltDBStore implements the Store interface using a persistant BoltDB instance
 type BoltDBStore struct {
 	db     *bolt.DB
 	logger *zap.SugaredLogger
 }
 
+// NewBoltDBStore creates a BoltDBStore persisting its state in the given directory
 func NewBoltDBStore(logger *zap.SugaredLogger, dataDir string) (*BoltDBStore, error) {
 	db, err := bolt.Open(filepath.Join(dataDir, "dd-dns.db"), 0600, nil)
 	if err != nil {
@@ -38,11 +40,17 @@ func NewBoltDBStore(logger *zap.SugaredLogger, dataDir string) (*BoltDBStore, er
 	return &BoltDBStore{db: db, logger: logger.Named("boltdb-store")}, nil
 }
 
+// CleanUp ensures any pending writes are flushed to disk
+// It should be called before closing the program to ensure there is no dataloss
 func (store *BoltDBStore) CleanUp() {
 	store.logger.Info("Close boltdb connection")
 	store.db.Close()
 }
 
+// InsertMapping registers that the ContainerID of the DNSMapping supports an A record
+// In case the A record is not present in the current state, the callback will be executed
+// which should create it at the DNSProvider
+// TODO: maybe pass a dns.Provider, rather than a generic callback
 func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB func(*types.DNSMapping) error) error {
 	return store.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
@@ -88,6 +96,9 @@ func (store *BoltDBStore) InsertMapping(dnsMapping *types.DNSMapping, insertCB f
 	})
 }
 
+// RemoveMapping removes the ContainerID from the list backing the A record
+// In case this was the last ContainerID in the list, the callback will be executed
+// to remove the A record from the DNSProvider
 func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB func(*types.DNSMapping) error) error {
 	return store.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
@@ -123,6 +134,9 @@ func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB f
 	})
 }
 
+// ReplaceMappings will replace the current list of DNSMappings with the supplied list
+// It will interact with the dns.Provider to ensure the remote state is in sync
+// It will perform a diff with the current state to minimize the amount of API calls to the dns.Provider
 func (store *BoltDBStore) ReplaceMappings(mappings []*types.DNSMapping, provider dns.Provider) error {
 	missingItems := []*types.DNSMapping{}
 	err := store.db.View(func(tx *bolt.Tx) error {

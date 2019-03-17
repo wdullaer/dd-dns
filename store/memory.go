@@ -10,11 +10,13 @@ import (
 
 const tableName = "dns-mapping"
 
+// MemoryStore implements the Store interface using an ephemeral in memory database
 type MemoryStore struct {
 	db     *memdb.MemDB
 	logger *zap.SugaredLogger
 }
 
+// NewMemoryStore returns a new instance of a MemoryStore
 func NewMemoryStore(logger *zap.SugaredLogger) (*MemoryStore, error) {
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
@@ -43,8 +45,13 @@ func NewMemoryStore(logger *zap.SugaredLogger) (*MemoryStore, error) {
 	return &MemoryStore{db: db, logger: logger.Named("memory-store")}, nil
 }
 
+// CleanUp is a no-op for the MemoryStore
 func (*MemoryStore) CleanUp() {}
 
+// InsertMapping registers that the ContainerID of the DNSMapping supports an A record
+// In case the A record is not present in the current state, the callback will be executed
+// which should create it at the DNSProvider
+// TODO: maybe pass a dns.Provider, rather than a generic callback
 func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(*types.DNSMapping) error) error {
 	txn := store.db.Txn(true)
 	defer txn.Abort()
@@ -87,6 +94,9 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(*type
 	return nil
 }
 
+// RemoveMapping removes the ContainerID from the list backing the A record
+// In case this was the last ContainerID in the list, the callback will be executed
+// to remove the A record from the DNSProvider
 func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(*types.DNSMapping) error) error {
 	txn := store.db.Txn(true)
 	defer txn.Abort()
@@ -121,6 +131,9 @@ func (store *MemoryStore) RemoveMapping(mapping *types.DNSMapping, cb func(*type
 	return nil
 }
 
+// ReplaceMappings will replace the current list of DNSMappings with the supplied list
+// It will interact with the dns.Provider to ensure the remote state is in sync
+// It will perform a diff with the current state to minimize the amount of API calls to the dns.Provider
 func (store *MemoryStore) ReplaceMappings(mappings []*types.DNSMapping, provider dns.Provider) error {
 	txn := store.db.Txn(false)
 	defer txn.Abort()
