@@ -56,7 +56,7 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(*type
 	txn := store.db.Txn(true)
 	defer txn.Abort()
 
-	rawRecord, err := txn.First(tableName, "id", mapping.Name, mapping.IP)
+	rawRecord, err := txn.First(tableName, "id", mapping.Name, mapping.IP.String())
 	if err != nil {
 		return err
 	}
