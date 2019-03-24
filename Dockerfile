@@ -17,4 +17,5 @@ FROM alpine:latest
 
 CMD ["/dd-dns", "--data-directory", "/data"]
 VOLUME /data
+RUN apk --update add ca-certificates
 COPY --from=builder /app/dd-dns/dd-dns /dd-dns
