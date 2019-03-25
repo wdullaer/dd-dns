@@ -38,6 +38,7 @@ func syncDNSWithDocker(state *State) error {
 		}
 	}
 
+	state.Logger.Infow("Setting new mappings", "mappings", mappingList)
 	return state.Store.ReplaceMappings(mappingList, state.Provider)
 }
 
@@ -62,13 +63,13 @@ func processDockerEvent(event events.Message, state *State) error {
 
 	switch event.Action {
 	case "start":
-		state.Logger.Infow("Insert into store and DNS provider", "mapping", mapping)
+		state.Logger.Infow("Insert into store", "mapping", mapping)
 		err = state.Store.InsertMapping(mapping, state.Provider.AddHostnameMapping)
 		if err != nil {
 			return err
 		}
 	case "die":
-		state.Logger.Infow("Remove from store and DNS provider", "mapping", mapping)
+		state.Logger.Infow("Remove from store", "mapping", mapping)
 		err := state.Store.RemoveMapping(mapping, state.Provider.RemoveHostnameMapping)
 		if err != nil {
 			return err

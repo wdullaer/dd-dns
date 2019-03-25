@@ -25,7 +25,7 @@ func NewDryrunProvider(logger *zap.SugaredLogger) (*DryrunProvider, error) {
 // In case an A record already exists, it will append the mapping, trying to keep the current information intact
 // It will not modify any records that are not A records.
 func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
-	provider.logger.Infow("Adding mapping", "mapping", mapping)
+	provider.logger.Infow("Adding mapping to DNS", "mapping", mapping)
 	if len(provider.Zone[mapping.Name]) == 0 {
 		provider.Zone[mapping.Name] = []net.IP{mapping.IP}
 	} else {
@@ -41,7 +41,7 @@ func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) er
 // In case no A record or no mapping exists, the call will succeed, given that the required has already been achieved
 // It will not modify any records that are not A records
 func (provider *DryrunProvider) RemoveHostnameMapping(mapping *types.DNSMapping) error {
-	provider.logger.Infow("Removing mapping", "mapping", mapping)
+	provider.logger.Infow("Removing mapping from DNS", "mapping", mapping)
 	record := provider.Zone[mapping.Name]
 	index := findIPIndex(record, mapping.IP)
 	if index == -1 {

@@ -30,6 +30,7 @@ func NewCloudflareProvider(email string, token string, logger *zap.SugaredLogger
 // In case an A record already exists, it will append the mapping, trying to keep the current information intact
 // It will not modify any records that are not A records.
 func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
+	provider.logger.Infow("Adding mapping to DNS", "mapping", mapping)
 	zoneName := getZoneName(mapping.Name)
 
 	zoneID, err := provider.API.ZoneIDByName(zoneName)
@@ -76,6 +77,7 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 // In case no A record or no mapping exists, the call will succeed, given that the required has already been achieved
 // It will not modify any records that are not A records
 func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapping) error {
+	provider.logger.Infow("Removing mapping from DNS", "mapping", mapping)
 	zoneName := getZoneName(mapping.Name)
 
 	zoneID, err := provider.API.ZoneIDByName(zoneName)

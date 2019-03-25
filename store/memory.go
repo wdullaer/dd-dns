@@ -62,7 +62,6 @@ func (store *MemoryStore) InsertMapping(mapping *types.DNSMapping, cb func(*type
 	}
 
 	if rawRecord == nil {
-		store.logger.Info("Insert record into DNS")
 		if err = cb(mapping); err != nil {
 			return err
 		}
