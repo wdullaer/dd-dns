@@ -107,9 +107,10 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 
 	currentIPs[index] = currentIPs[len(currentIPs)-1]
 	record.Content = strings.Join(currentIPs[:len(currentIPs)-1], ",")
-	if err = provider.API.UpdateDNSRecord(zoneID, record.ID, record); err != nil {
-		return err
+
+	if len(currentIPs) == 1 {
+		return provider.API.DeleteDNSRecord(zoneID, record.ID)
 	}
 
-	return nil
+	return provider.API.UpdateDNSRecord(zoneID, record.ID, record)
 }
