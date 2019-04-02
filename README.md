@@ -115,3 +115,4 @@ docker build .
 * [ ] Look up the network which IP address should be taken from a docker label
 * [ ] Look into [viper config library](https://github.com/spf13/viper)
 * [ ] Look into implementing DNS providers via a plugin using the [hashicorp plugin rpc](https://github.com/hashicorp/go-plugin)
+* [ ] Look into desired state config management to ensure the remote is in line with what's in the store (through polling or events)
