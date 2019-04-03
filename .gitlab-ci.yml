@@ -8,20 +8,23 @@ stages:
 
 test:
   stage: test
+  variables:
+    CGO_ENABLED: 0
   script:
-    - go test
+    - go vet ./...
+    - go test ./...
 
-release:
-  stage: release
-  script:
-    - GOOS=darwin GOARCH=amd64 go build
-    - GOOS=linux GOARCH=amd64 go build
-    - GOOS=linux GOARCH=386 go build
-    - GOOS=linux GOARCH=arm go build
-    - GOOS=linux GOARCH=arm64 go build
-    - GOOS=freebsd GOARCH=amd64 go build
-    - GOOS=openbsd GOARCH=amd64 go build
-    - GOOS=windows GOARCH=386 go build
-    - GOOS=windows GOARCH=amd64 go build
-  only:
-    - tag
+# release:
+#   stage: release
+#   script:
+#     - GOOS=darwin GOARCH=amd64 go build
+#     - GOOS=linux GOARCH=amd64 go build
+#     - GOOS=linux GOARCH=386 go build
+#     - GOOS=linux GOARCH=arm go build
+#     - GOOS=linux GOARCH=arm64 go build
+#     - GOOS=freebsd GOARCH=amd64 go build
+#     - GOOS=openbsd GOARCH=amd64 go build
+#     - GOOS=windows GOARCH=386 go build
+#     - GOOS=windows GOARCH=amd64 go build
+#   only:
+#     - tag
