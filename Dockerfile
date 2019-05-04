@@ -1,7 +1,7 @@
 FROM golang:1.12-alpine AS builder
 
 WORKDIR /app/dd-dns
-RUN apk --update add git
+RUN apk --no-cache add git
 
 # Download the dependencies first, they don't change often
 # Doing this improves caching and build times
@@ -17,5 +17,5 @@ FROM alpine:latest
 
 CMD ["/dd-dns", "--data-directory", "/data"]
 VOLUME /data
-RUN apk --update add ca-certificates
+RUN apk --no-cache add ca-certificates
 COPY --from=builder /app/dd-dns/dd-dns /dd-dns
