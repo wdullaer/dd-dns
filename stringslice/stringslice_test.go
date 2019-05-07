@@ -1,73 +1,130 @@
 package stringslice
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestContains(t *testing.T) {
-	input := []string{"foo", "bar", "baz"}
-
-	searchString := "Hello"
-	if Contains(input, searchString) {
-		t.Logf("`%s` should not contain `%s`", input, searchString)
-		t.Fail()
+	cases := []struct {
+		name        string
+		inputSlice  []string
+		inputSearch string
+		expected    bool
+	}{
+		{
+			name:        "Should return false for an empty slice",
+			inputSlice:  []string{},
+			inputSearch: "foo",
+			expected:    false,
+		},
+		{
+			name:        "Should return false if the searchString is not present",
+			inputSlice:  []string{"foo", "bar", "baz"},
+			inputSearch: "hello",
+			expected:    false,
+		},
+		{
+			name:        "Should return true if the searchString is present",
+			inputSlice:  []string{"foo", "bar", "baz"},
+			inputSearch: "foo",
+			expected:    true,
+		},
+		{
+			name:        "Should return true if the searchString is present multiple times",
+			inputSlice:  []string{"foo", "bar", "foo", "baz"},
+			inputSearch: "foo",
+			expected:    true,
+		},
 	}
 
-	searchString = "bar"
-	if !Contains(input, searchString) {
-		t.Logf("`%s` should contain `%s`", input, searchString)
-		t.Fail()
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := Contains(tc.inputSlice, tc.inputSearch)
+			assert.Equal(t, tc.expected, output)
+		})
 	}
 }
 
 func TestFindIndex(t *testing.T) {
-	input := []string{"foo", "bar", "baz"}
-
-	searchString := "Hello"
-	if FindIndex(input, searchString) != -1 {
-		t.Logf("`%s` should have index -1 in `%s`", searchString, input)
-		t.Fail()
+	cases := []struct {
+		name        string
+		inputSlice  []string
+		inputSearch string
+		expected    int
+	}{
+		{
+			name:        "Should return -1 for an empty input slice",
+			inputSlice:  []string{},
+			inputSearch: "foo",
+			expected:    -1,
+		},
+		{
+			name:        "Should return -1 if the inputSearch is not present in the slice",
+			inputSlice:  []string{"foo", "bar", "baz"},
+			inputSearch: "hello",
+			expected:    -1,
+		},
+		{
+			name:        "Should return the index if the inputSearch is present in the slice",
+			inputSlice:  []string{"foo", "bar", "baz"},
+			inputSearch: "foo",
+			expected:    0,
+		},
+		{
+			name:        "Should return the first index if the inputSearch is present multiple times",
+			inputSlice:  []string{"foo", "bar", "foo", "baz"},
+			inputSearch: "foo",
+			expected:    0,
+		},
 	}
 
-	searchString = "bar"
-	if FindIndex(input, searchString) != 1 {
-		t.Logf("`%s` should have index 1 in `%s`", searchString, input)
-		t.Fail()
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := FindIndex(tc.inputSlice, tc.inputSearch)
+			assert.Equal(t, tc.expected, output)
+		})
 	}
 }
 
 func TestRemoveFirst(t *testing.T) {
-	input := []string{"foo", "bar", "baz"}
-
-	removeString := "Hello"
-	output := RemoveFirst(input, removeString)
-	if len(output) != len(input) {
-		t.Logf("`%s` should have same length as `%s` when trying to remove `%s`", output, input, removeString)
-		t.Fail()
+	cases := []struct {
+		name        string
+		inputSlice  []string
+		inputSearch string
+		expected    []string
+	}{
+		{
+			name:        "Should return the input if the inputSearch is not present in the slice",
+			inputSlice:  []string{"foo", "bar", "baz"},
+			inputSearch: "hello",
+			expected:    []string{"foo", "bar", "baz"},
+		},
+		{
+			name:        "Should return an empty slice if the input is an empty slice",
+			inputSlice:  []string{},
+			inputSearch: "hello",
+			expected:    []string{},
+		},
+		{
+			name:        "Should remove the inputSearch if it is present in the slice",
+			inputSlice:  []string{"foo", "bar", "baz"},
+			inputSearch: "foo",
+			expected:    []string{"bar", "baz"},
+		},
+		{
+			name:        "Should remove the first occurance of the inputSearch if it is present multiple times",
+			inputSlice:  []string{"foo", "bar", "foo", "baz"},
+			inputSearch: "foo",
+			expected:    []string{"bar", "foo", "baz"},
+		},
 	}
 
-	removeString = "foo"
-	output = RemoveFirst(input, removeString)
-	expected := []string{"baz", "bar"}
-	if !equal(output, expected) {
-		t.Logf("`%s` should  be equal to `%s`", output, expected)
-		t.Fail()
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			output := RemoveFirst(tc.inputSlice, tc.inputSearch)
+			assert.ElementsMatch(t, tc.expected, output)
+		})
 	}
-}
-
-func equal(a, b []string) bool {
-	// If one is nil, the other must also be nil.
-	if (a == nil) != (b == nil) {
-		return false
-	}
-
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-
-	return true
 }
