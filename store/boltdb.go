@@ -143,17 +143,17 @@ func (store *BoltDBStore) ReplaceMappings(mappings []*types.DNSMapping, provider
 		bucket := tx.Bucket([]byte(bucketName))
 		cursor := bucket.Cursor()
 
-		containerIDs := make([]string, len(mappings))
-		for i, mapping := range mappings {
-			containerIDs[i] = mapping.ContainerID
-		}
-
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
 			dnsContainerList := &types.DNSContainerList{}
 			json.Unmarshal(v, dnsContainerList)
 			store.logger.Infow("Current Mapping", "mapping", dnsContainerList)
 			for _, containerID := range dnsContainerList.ContainerList {
-				if stringslice.Contains(containerIDs, containerID) {
+				mapping := &types.DNSMapping{
+					Name:        dnsContainerList.Name,
+					IP:          dnsContainerList.IP,
+					ContainerID: containerID,
+				}
+				if types.HasDNSMapping(mappings, mapping) {
 					break
 				}
 				missingItems = append(missingItems, &types.DNSMapping{

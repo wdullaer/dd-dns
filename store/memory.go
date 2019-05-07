@@ -137,11 +137,6 @@ func (store *MemoryStore) ReplaceMappings(mappings []*types.DNSMapping, provider
 	txn := store.db.Txn(false)
 	defer txn.Abort()
 
-	containerIDs := make([]string, len(mappings))
-	for i, mapping := range mappings {
-		containerIDs[i] = mapping.ContainerID
-	}
-
 	iterator, err := txn.Get(tableName, "containerid")
 	if err != nil {
 		return err
@@ -151,7 +146,12 @@ func (store *MemoryStore) ReplaceMappings(mappings []*types.DNSMapping, provider
 	for item := iterator.Next(); item != nil; item = iterator.Next() {
 		dnsContainerList := item.(*types.DNSContainerList)
 		for _, containerID := range dnsContainerList.ContainerList {
-			if stringslice.Contains(containerIDs, containerID) {
+			mapping := &types.DNSMapping{
+				Name:        dnsContainerList.Name,
+				IP:          dnsContainerList.IP,
+				ContainerID: containerID,
+			}
+			if types.HasDNSMapping(mappings, mapping) {
 				break
 			}
 			missingItems = append(missingItems, &types.DNSMapping{
