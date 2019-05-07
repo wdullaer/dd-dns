@@ -224,7 +224,7 @@ func TestValidateDockerLabel(t *testing.T) {
 		{
 			name:     "Should set a default of caddy.address",
 			input:    "",
-			expected: "caddy.address",
+			expected: "dd-dns.hostname",
 			error:    false,
 		},
 		{

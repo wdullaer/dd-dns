@@ -137,7 +137,7 @@ func validateDNSContent(dnsContent string) (string, error) {
 func validateDockerLabel(dockerLabel string) (string, error) {
 	dockerLabel = sanitize(dockerLabel)
 	if dockerLabel == "" {
-		return "caddy.address", nil
+		return "dd-dns.hostname", nil
 	}
 	return dockerLabel, nil
 }

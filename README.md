@@ -47,7 +47,7 @@ Commandline flags take precedence over environment variables.
 * **dns-content**  
     The IP address to be added to the DNS content (env: `DNS_CONTENT`, default: `container`, oneOf: [`container`, `<ipv4>`])
 * **docker-label**  
-    The docker label that contains the domain name (env: `DOCKER_LABEL`, default: `caddy.address`)
+    The docker label that contains the domain name (env: `DOCKER_LABEL`, default: `dd-dns.hostname`)
 * **provider**  
     The DNS provider to register the domain names with (env: `PROVIDER`, default: `cloudflare`, oneOf: [`cloudflare`, `dryrun`])
 * **store**  
