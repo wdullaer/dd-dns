@@ -1,10 +1,7 @@
 package dns
 
 import (
-	"strings"
-
 	cloudflare "github.com/cloudflare/cloudflare-go"
-	"github.com/wdullaer/dd-dns/stringslice"
 	"github.com/wdullaer/dd-dns/types"
 	"go.uber.org/zap"
 )
@@ -26,8 +23,8 @@ func NewCloudflareProvider(email string, token string, logger *zap.SugaredLogger
 	return &CloudflareProvider{API: api, logger: logger.Named("cloudflare-dns")}, nil
 }
 
-// AddHostnameMapping adds the given DNSMapping to an A record
-// In case an A record already exists, it will append the mapping, trying to keep the current information intact
+// AddHostnameMapping adds the given DNSMapping as an A record
+// In case an A record already exists, it will succeed, since the desired state has already been obtained
 // It will not modify any records that are not A records.
 func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping) error {
 	provider.logger.Infow("Adding mapping to DNS", "mapping", mapping)
@@ -43,7 +40,7 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 	}
 
 	// If there is no remote record for this hostname, we need to create it
-	if len(records) == 0 {
+	if !hasRecordForIP(records, mapping.IP.String()) {
 		dnsRecord := cloudflare.DNSRecord{
 			Name:    mapping.Name,
 			Content: mapping.IP.String(),
@@ -55,20 +52,7 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 		return nil
 	}
 
-	// There should only be one entry for the hostname, we should update it
-	record := records[0]
-	currentIPs := strings.Split(record.Content, ",")
-
-	for i := range currentIPs {
-		if currentIPs[i] == mapping.IP.String() {
-			return nil
-		}
-	}
-	record.Content = strings.Join(append(currentIPs, mapping.IP.String()), ",")
-
-	if err = provider.API.UpdateDNSRecord(zoneID, record.ID, record); err != nil {
-		return err
-	}
+	provider.logger.Warnw("Record already exists for DNSMapping", "dnsMapping", mapping)
 
 	return nil
 }
@@ -89,28 +73,34 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 		return err
 	}
 
-	// This shouldn't happen, but it's not lethal, so log a warning and continue
-	if len(records) == 0 {
-		provider.logger.Warnw("No records exist for hostname", "hostname", mapping.Name)
-		return nil
-	}
-
-	record := records[0]
-	currentIPs := strings.Split(record.Content, ",")
-
-	index := stringslice.FindIndex(currentIPs, mapping.IP.String())
+	index := findRecordIndex(records, mapping.IP.String())
 	// This shouldn't happen, but it's not lethal, so log a warning and continue
 	if index == -1 {
 		provider.logger.Warnw("IP is not mapped to hostname ", "mapping", mapping)
 		return nil
 	}
 
-	currentIPs[index] = currentIPs[len(currentIPs)-1]
-	record.Content = strings.Join(currentIPs[:len(currentIPs)-1], ",")
+	return provider.API.DeleteDNSRecord(zoneID, records[index].ID)
+}
 
-	if len(currentIPs) == 1 {
-		return provider.API.DeleteDNSRecord(zoneID, record.ID)
+// hasRecordForIP returns true if there is at least 1 DNSRecord with the given
+// IP as Content in the input slice
+func hasRecordForIP(col []cloudflare.DNSRecord, ip string) bool {
+	for i := range col {
+		if col[i].Content == ip {
+			return true
+		}
 	}
+	return false
+}
 
-	return provider.API.UpdateDNSRecord(zoneID, record.ID, record)
+// findIndex returns the index of the first DNSRecord that has a given IP
+// Returns -1 if no DNSRecord with the given IP is present in the slice
+func findRecordIndex(col []cloudflare.DNSRecord, ip string) int {
+	for i := range col {
+		if col[i].Content == ip {
+			return i
+		}
+	}
+	return -1
 }
