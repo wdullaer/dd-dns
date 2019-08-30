@@ -12,8 +12,6 @@ type CloudflareProvider struct {
 	logger *zap.SugaredLogger
 }
 
-const cloudflareEndpoint = "https://api.cloudflare.com/client/v4/"
-
 // NewCloudflareProvider generates a CloudflareProvider using the given credentials
 func NewCloudflareProvider(email string, token string, logger *zap.SugaredLogger) (*CloudflareProvider, error) {
 	api, err := cloudflare.New(token, email)

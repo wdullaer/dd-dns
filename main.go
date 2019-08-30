@@ -32,7 +32,9 @@ func main() {
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
 
 	// TODO: maybe regularly sync with docker
-	syncDNSWithDocker(state)
+	if err := syncDNSWithDocker(state); err != nil {
+		logger.Fatalw("Failed to get initial docker state", "err", err)
+	}
 
 	eventChan, errorChan := makeDockerChannels(state.DockerClient, state.Config)
 main:

@@ -145,7 +145,9 @@ func (store *BoltDBStore) ReplaceMappings(mappings []*types.DNSMapping, provider
 
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
 			dnsContainerList := &types.DNSContainerList{}
-			json.Unmarshal(v, dnsContainerList)
+			if err := json.Unmarshal(v, dnsContainerList); err != nil {
+				return err
+			}
 			store.logger.Infow("Current Mapping", "mapping", dnsContainerList)
 			for _, containerID := range dnsContainerList.ContainerList {
 				mapping := &types.DNSMapping{
