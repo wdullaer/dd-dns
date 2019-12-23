@@ -17,14 +17,11 @@ require (
 	github.com/hashicorp/go-memdb v0.0.0-20181108192425-032f93b25bec
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
 	github.com/sirupsen/logrus v1.4.1 // indirect
-	github.com/stretchr/testify v1.3.0
-	go.uber.org/atomic v1.3.2 // indirect
-	go.uber.org/multierr v1.1.0 // indirect
+	github.com/stretchr/testify v1.4.0
 	go.uber.org/zap v1.13.0
-	golang.org/x/sys v0.0.0-20190402142545-baf5eb976a8c // indirect
-	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	google.golang.org/grpc v1.19.1 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 )
+
+go 1.13

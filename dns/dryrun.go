@@ -28,10 +28,8 @@ func (provider *DryrunProvider) AddHostnameMapping(mapping *types.DNSMapping) er
 	provider.logger.Infow("Adding mapping to DNS", "mapping", mapping)
 	if len(provider.Zone[mapping.Name]) == 0 {
 		provider.Zone[mapping.Name] = []net.IP{mapping.IP}
-	} else {
-		if findIPIndex(provider.Zone[mapping.Name], mapping.IP) == -1 {
-			provider.Zone[mapping.Name] = append(provider.Zone[mapping.Name], mapping.IP)
-		}
+	} else if findIPIndex(provider.Zone[mapping.Name], mapping.IP) == -1 {
+		provider.Zone[mapping.Name] = append(provider.Zone[mapping.Name], mapping.IP)
 	}
 	provider.logger.Infow("Resulting record", "hostname", mapping.Name, "record", stringify(provider.Zone[mapping.Name]))
 	return nil
@@ -46,7 +44,7 @@ func (provider *DryrunProvider) RemoveHostnameMapping(mapping *types.DNSMapping)
 	index := findIPIndex(record, mapping.IP)
 	if index == -1 {
 		// Should never happen
-		provider.logger.Warn("Attemting to remove a non mapped IP")
+		provider.logger.Warn("Attempting to remove a non mapped IP")
 		return nil
 	}
 	if len(record) == 1 {

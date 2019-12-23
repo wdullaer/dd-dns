@@ -114,7 +114,7 @@ func TestRemoveFirst(t *testing.T) {
 			expected:    []string{"bar", "baz"},
 		},
 		{
-			name:        "Should remove the first occurance of the inputSearch if it is present multiple times",
+			name:        "Should remove the first occurrence of the inputSearch if it is present multiple times",
 			inputSlice:  []string{"foo", "bar", "foo", "baz"},
 			inputSearch: "foo",
 			expected:    []string{"bar", "foo", "baz"},

@@ -1,3 +1,4 @@
+//nolint:goconst
 package main
 
 import (
@@ -34,7 +35,10 @@ func (c *config) String() string {
 		c.DataDirectory,
 	)
 }
-func (c *config) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+
+// MarshalLogObject implements zapcore.ObjectMarshaler.
+//nolint:unparam
+func (c config) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("provider", c.Provider)
 	enc.AddString("account-name", c.AccountName)
 	enc.AddString("account-secret", "****")
@@ -134,6 +138,7 @@ func validateDNSContent(dnsContent string) (string, error) {
 }
 
 // validateDockerLabel sets a default, any string is valid
+//nolint:unparam
 func validateDockerLabel(dockerLabel string) (string, error) {
 	dockerLabel = sanitize(dockerLabel)
 	if dockerLabel == "" {

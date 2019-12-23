@@ -13,7 +13,7 @@ import (
 
 const bucketName = "dns-mapping"
 
-// BoltDBStore implements the Store interface using a persistant BoltDB instance
+// BoltDBStore implements the Store interface using a persistent BoltDB instance
 type BoltDBStore struct {
 	db     *bolt.DB
 	logger *zap.SugaredLogger
@@ -26,14 +26,10 @@ func NewBoltDBStore(logger *zap.SugaredLogger, dataDir string) (*BoltDBStore, er
 		return nil, err
 	}
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	if err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
+		return err
+	}); err != nil {
 		return nil, err
 	}
 
@@ -110,16 +106,14 @@ func (store *BoltDBStore) RemoveMapping(dnsMapping *types.DNSMapping, removeCB f
 		}
 
 		record := &types.DNSContainerList{}
-		err := json.Unmarshal(rawRecord, record)
-		if err != nil {
+		if err := json.Unmarshal(rawRecord, record); err != nil {
 			return err
 		}
 		record.ContainerList = stringslice.RemoveFirst(record.ContainerList, dnsMapping.ContainerID)
 
 		// No mappings anymore, remove from dns provider
 		if len(record.ContainerList) == 0 {
-			err := removeCB(dnsMapping)
-			if err != nil {
+			if err := removeCB(dnsMapping); err != nil {
 				return err
 			}
 			return bucket.Delete(dnsMapping.GetKey())

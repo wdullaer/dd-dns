@@ -101,9 +101,9 @@ func makeDockerChannels(client *docker.Client, config *config) (<-chan events.Me
 }
 
 // getContainerByID retrieves a Container Object. Returns an error if the container is not found
-func getContainerByID(client *docker.Client, ID string) (*dt.Container, error) {
+func getContainerByID(client *docker.Client, id string) (*dt.Container, error) {
 	args := filters.NewArgs()
-	args.Add("id", ID)
+	args.Add("id", id)
 	containers, err := client.ContainerList(context.Background(), dt.ContainerListOptions{
 		Filters: args,
 	})
@@ -111,7 +111,7 @@ func getContainerByID(client *docker.Client, ID string) (*dt.Container, error) {
 		return nil, err
 	}
 	if len(containers) == 0 {
-		return nil, fmt.Errorf("no container with ID %s could be found", ID)
+		return nil, fmt.Errorf("no container with ID %s could be found", id)
 	}
 	return &containers[0], nil
 }

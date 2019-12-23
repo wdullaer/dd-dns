@@ -17,6 +17,6 @@ func getZoneName(hostname string) string {
 	if len(parts) < 2 {
 		return hostname
 	}
-	parts = parts[len(parts)-2 : len(parts)]
+	parts = parts[len(parts)-2:]
 	return strings.Join(parts, ".")
 }

@@ -22,7 +22,7 @@ type State struct {
 	Logger       *zap.SugaredLogger
 }
 
-// NewState returns a fully initialised application State baed on the
+// NewState returns a fully initialized application State baed on the
 // configuration options
 func NewState(config *config, logger *zap.SugaredLogger) (*State, error) {
 	state := &State{
