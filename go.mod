@@ -18,7 +18,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/sirupsen/logrus v1.4.1 // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.0
 	go.uber.org/zap v1.15.0
 	google.golang.org/grpc v1.19.1 // indirect
 	gotest.tools v2.2.0+incompatible // indirect
