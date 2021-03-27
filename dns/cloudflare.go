@@ -1,6 +1,8 @@
 package dns
 
 import (
+	"context"
+
 	cloudflare "github.com/cloudflare/cloudflare-go"
 	"github.com/wdullaer/dd-dns/types"
 	"go.uber.org/zap"
@@ -32,7 +34,7 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 	if err != nil {
 		return err
 	}
-	records, err := provider.API.DNSRecords(zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
+	records, err := provider.API.DNSRecords(context.TODO(), zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
 	if err != nil {
 		return err
 	}
@@ -44,7 +46,7 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 			Content: mapping.IP.String(),
 			Type:    "A",
 		}
-		if _, err = provider.API.CreateDNSRecord(zoneID, dnsRecord); err != nil {
+		if _, err = provider.API.CreateDNSRecord(context.TODO(), zoneID, dnsRecord); err != nil {
 			return err
 		}
 		return nil
@@ -66,7 +68,7 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 	if err != nil {
 		return err
 	}
-	records, err := provider.API.DNSRecords(zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
+	records, err := provider.API.DNSRecords(context.TODO(), zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
 	if err != nil {
 		return err
 	}
@@ -78,7 +80,7 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 		return nil
 	}
 
-	return provider.API.DeleteDNSRecord(zoneID, records[index].ID)
+	return provider.API.DeleteDNSRecord(context.TODO(), zoneID, records[index].ID)
 }
 
 // hasRecordForIP returns true if there is at least 1 DNSRecord with the given
