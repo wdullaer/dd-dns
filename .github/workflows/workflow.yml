@@ -1,53 +1,52 @@
 name: Default Workflow
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_requests:
 jobs:
   test:
     name: test
     strategy:
       matrix:
-        go-version: [1.14.x, 1.15.x]
+        go-version: [1.18, 1.19]
         os: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: true
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-go@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
+          check-latest: true
+          cache: true
         id: go
-      - uses: actions/cache@v1
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - run: go test ./... -cover
   lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-go@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.15
-      - run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.21.0
-      - run: export PATH=${PATH}:`go env GOPATH`/bin && golangci-lint run
+          go-version: 1.19
+          check-latest: true
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          args: --timeout 2m
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     name: release
     needs: [test, lint]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-go@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.15
-      - uses: actions/cache@v1
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+          go-version: 1.19
+          check-latest: true
+          cache: true
       - run: CGOENABLED=0 GOOS=linux GOARCH=amd64 go build -o release/linux-amd64/proto-filter
       - run: CGOENABLED=0 GOOS=linux GOARCH=386 go build -o release/linux-386/proto-filter
       - run: CGOENABLED=0 GOOS=linux GOARCH=arm go build -o release/linux-arm/proto-filter
