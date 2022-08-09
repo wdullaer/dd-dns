@@ -16,8 +16,8 @@ type DNSContainerList struct {
 // DNSMapping is a type that represents a Container and its associated (hostname, IP) pair
 type DNSMapping struct {
 	Name        string
-	IP          net.IP
 	ContainerID string
+	IP          net.IP
 }
 
 // GetKey produces a byte array that can be used as a unique key for this record for us in eg Boltdb

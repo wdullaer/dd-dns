@@ -17,8 +17,8 @@ type config struct {
 	DNSContent    string `json:"dns-content"`
 	DockerLabel   string `json:"docker-label"`
 	Store         string `json:"store"`
-	DebugLogger   bool   `json:"debug-logger"`
 	DataDirectory string `json:"data-directory"`
+	DebugLogger   bool   `json:"debug-logger"`
 	// TODO: Add config entry for default docker network to use when DNSContent is container
 }
 
@@ -37,6 +37,7 @@ func (c *config) String() string {
 }
 
 // MarshalLogObject implements zapcore.ObjectMarshaler.
+//
 //nolint:unparam
 func (c config) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("provider", c.Provider)
@@ -138,6 +139,7 @@ func validateDNSContent(dnsContent string) (string, error) {
 }
 
 // validateDockerLabel sets a default, any string is valid
+//
 //nolint:unparam
 func validateDockerLabel(dockerLabel string) (string, error) {
 	dockerLabel = sanitize(dockerLabel)

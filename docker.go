@@ -26,7 +26,7 @@ func syncDNSWithDocker(state *State) error {
 
 	mappingList := make([]*types.DNSMapping, len(containerList))
 	for i, container := range containerList {
-		ip, err := getIP(&container, state.Config.DNSContent)
+		ip, err := getIP(&containerList[i], state.Config.DNSContent)
 		if err != nil {
 			state.Logger.Errorw("Failed to obtain IP address for container", "containerId", container.ID, "err", err)
 			continue
@@ -85,12 +85,12 @@ func makeDockerChannels(client *docker.Client, config *config) (<-chan events.Me
 	args := filters.NewArgs()
 	args.Add("scope", "swarm")
 	args.Add("scope", "local")
-	//args.Add("type", "service") // service is created and deleted, we should probably special case this through some config
+	// args.Add("type", "service") // service is created and deleted, we should probably special case this through some config
 	args.Add("type", "container")
-	//args.Add("type", "config") // TODO: check what triggers these events
+	// args.Add("type", "config") // TODO: check what triggers these events
 	args.Add("event", "start")
 	args.Add("event", "die")
-	//args.Add("event", "update") // Only services are updated
+	// args.Add("event", "update") // Only services are updated
 	args.Add("label", config.DockerLabel)
 
 	// TODO: also listen to network/connect and network/disconnect messages, as these might change the IP of a container
@@ -117,8 +117,8 @@ func getContainerByID(client *docker.Client, id string) (*dt.Container, error) {
 }
 
 // getIP returns an IP address for a given container. How the IP is determined is driven by mode:
-//   * If mode is `container`: the IP address of the container in the first network is returned
-//   * If mode is an IP address: that IP address is parsed and returned
+//   - If mode is `container`: the IP address of the container in the first network is returned
+//   - If mode is an IP address: that IP address is parsed and returned
 func getIP(container *dt.Container, mode string) (net.IP, error) {
 	switch mode {
 	case "container":

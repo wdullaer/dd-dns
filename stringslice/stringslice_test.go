@@ -9,8 +9,8 @@ import (
 func TestContains(t *testing.T) {
 	cases := []struct {
 		name        string
-		inputSlice  []string
 		inputSearch string
+		inputSlice  []string
 		expected    bool
 	}{
 		{
@@ -50,8 +50,8 @@ func TestContains(t *testing.T) {
 func TestFindIndex(t *testing.T) {
 	cases := []struct {
 		name        string
-		inputSlice  []string
 		inputSearch string
+		inputSlice  []string
 		expected    int
 	}{
 		{

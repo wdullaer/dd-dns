@@ -46,6 +46,7 @@ linters-settings:
   govet:
     # report about shadowed variables
     check-shadowing: true
+    enable-all: true
     # settings per analyzer
     settings:
       printf: # analyzer name, run `go tool vet help` to see all analyzers
@@ -67,10 +68,6 @@ linters-settings:
   gocyclo:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
     min-complexity: 15
-
-  maligned:
-    # print struct with more effective memory layout or not, false by default
-    suggest-new: true
 
   goconst:
     # minimal length of string constant, 3 by default
@@ -112,9 +109,7 @@ linters:
     - goconst
     - unconvert
     - gosec
-    - interfacer
     # - goimports
-    - maligned
     - misspell
     - nakedret
     - unparam

@@ -10,8 +10,8 @@ import (
 func TestHasRecordForIP(t *testing.T) {
 	cases := []struct {
 		name       string
-		inputSlice []cloudflare.DNSRecord
 		inputIP    string
+		inputSlice []cloudflare.DNSRecord
 		expected   bool
 	}{
 		{
@@ -51,8 +51,8 @@ func TestHasRecordForIP(t *testing.T) {
 func TestFindIndex(t *testing.T) {
 	cases := []struct {
 		name       string
-		inputSlice []cloudflare.DNSRecord
 		inputIP    string
+		inputSlice []cloudflare.DNSRecord
 		expected   int
 	}{
 		{
