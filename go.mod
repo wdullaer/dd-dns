@@ -6,7 +6,7 @@ require (
 	github.com/docker/docker v20.10.20+incompatible
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-memdb v1.3.4
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	go.uber.org/zap v1.23.0
 )
 
@@ -190,7 +190,7 @@ require (
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.1.1 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/sylvia7788/contextcheck v1.0.5 // indirect
 	github.com/tdakkota/asciicheck v0.1.1 // indirect
