@@ -1,7 +1,9 @@
-FROM golang:1.15-alpine AS builder
+FROM golang:alpine AS builder
 
 WORKDIR /app/dd-dns
 RUN apk --no-cache add git
+
+ENV CGO_ENABLED=0
 
 # Download the dependencies first, they don't change often
 # Doing this improves caching and build times
