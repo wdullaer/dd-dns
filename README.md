@@ -45,7 +45,7 @@ Commandline flags take precedence over environment variables.
 * **account-secret**  
     The account-secret (or equivalent) to be used for authenticating with the DNS provider (env: `ACCOUNT_SECRET`)
 * **dns-content**  
-    The IP address to be added to the DNS content (env: `DNS_CONTENT`, default: `container`, oneOf: [`container`, `<ipv4>`])
+    The IP address to be added to the DNS content (env: `DNS_CONTENT`, default: `container`, oneOf: [`container`, `tailscale`, `<ipv4>`])
 * **docker-label**  
     The docker label that contains the domain name (env: `DOCKER_LABEL`, default: `dd-dns.hostname`)
 * **provider**  

@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
 	"github.com/wdullaer/dd-dns/types"
+	"tailscale.com/client/tailscale"
 )
 
 func syncDNSWithDocker(state *State) error {
@@ -118,6 +119,7 @@ func getContainerByID(client *docker.Client, id string) (*dt.Container, error) {
 
 // getIP returns an IP address for a given container. How the IP is determined is driven by mode:
 //   - If mode is `container`: the IP address of the container in the first network is returned
+//   - If mode is `tailscale`: the IPv4 address of the current tailnet is returned
 //   - If mode is an IP address: that IP address is parsed and returned
 func getIP(container *dt.Container, mode string) (net.IP, error) {
 	switch mode {
@@ -129,6 +131,20 @@ func getIP(container *dt.Container, mode string) (net.IP, error) {
 			}
 		}
 		return nil, errors.New("container has no internal IP addresses")
+	case "tailscale":
+		status, err := tailscale.StatusWithoutPeers(context.Background())
+		if status.CurrentTailnet == nil {
+			return nil, errors.New("not connected to tailscale")
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, ip := range status.TailscaleIPs {
+			if ip.Is4() {
+				return net.IP(ip.AsSlice()), nil
+			}
+		}
+		return nil, errors.New("no tailscale IPv4 address found")
 	default:
 		return net.ParseIP(mode), nil
 	}
