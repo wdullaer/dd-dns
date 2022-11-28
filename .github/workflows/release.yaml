@@ -1,7 +1,7 @@
 name: Release artifacts
 on:
   release:
-    type: [published]
+    types: [published]
 jobs:
   docker:
     runs-on: ubuntu-latest
