@@ -9,3 +9,7 @@ updates:
   - dependency-name: github.com/cloudflare/cloudflare-go
     versions:
     - 0.14.0
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: weekly

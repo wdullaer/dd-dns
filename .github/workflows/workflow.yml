@@ -1,4 +1,4 @@
-name: Default Workflow
+name: Testing and linting
 on:
   push:
     branches:
@@ -34,35 +34,12 @@ jobs:
         with:
           version: latest
           args: --timeout 2m
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    name: release
-    needs: [test, lint]
+  docker:
+    name: Docker build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: docker/build-push-action@v3
         with:
-          go-version-file: 'go.mod'
-          check-latest: true
-          cache: true
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o release/linux-amd64/dd-dns
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -o release/linux-386/dd-dns
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=arm go build -o release/linux-arm/dd-dns
-      - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o release/darwin-amd64/dd-dns
-      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o release/windows-amd64/dd-dns.exe
-      - run: CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -o release/windows-386/dd-dns.exe
-      - run: |
-          for PLATFORM in $(find ./release -mindepth 1 -maxdepth 1 -type d); do
-            OSARCH=$(basename ${PLATFORM})
-            echo "--> ${OSARCH}"
-            pushd "${PLATFORM}" >/dev/null 2>&1
-            zip "../${OSARCH}.zip" ./*
-            popd >/dev/null 2>&1
-            rm -rf "${PLATFORM}/"
-          done
-      - uses: softprops/action-gh-release@v1
-        with:
-          files: release/*.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          context: .
+          push: false
