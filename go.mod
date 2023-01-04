@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.8.1
 	go.uber.org/zap v1.24.0
-	tailscale.com v1.34.1
+	tailscale.com v1.34.2
 )
 
 require (
@@ -229,7 +229,7 @@ require (
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.3.1-0.20221220025402-2204b6615fb8 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	golang.org/x/tools v0.1.12 // indirect
