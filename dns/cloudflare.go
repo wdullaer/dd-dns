@@ -30,23 +30,32 @@ func (provider *CloudflareProvider) AddHostnameMapping(mapping *types.DNSMapping
 	provider.logger.Infow("Adding mapping to DNS", "mapping", mapping)
 	zoneName := getZoneName(mapping.Name)
 
-	zoneID, err := provider.API.ZoneIDByName(zoneName)
+	zoneIDString, err := provider.API.ZoneIDByName(zoneName)
 	if err != nil {
 		return err
 	}
-	records, err := provider.API.DNSRecords(context.TODO(), zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
+	zoneID := cloudflare.ZoneIdentifier(zoneIDString)
+	records, _, err := provider.API.ListDNSRecords(
+		context.TODO(),
+		zoneID,
+		cloudflare.ListDNSRecordsParams{Type: "A", Name: mapping.Name},
+	)
 	if err != nil {
 		return err
 	}
 
 	// If there is no remote record for this hostname, we need to create it
 	if !hasRecordForIP(records, mapping.IP.String()) {
-		dnsRecord := cloudflare.DNSRecord{
+		dnsRecord := cloudflare.CreateDNSRecordParams{
 			Name:    mapping.Name,
 			Content: mapping.IP.String(),
 			Type:    "A",
 		}
-		if _, err = provider.API.CreateDNSRecord(context.TODO(), zoneID, dnsRecord); err != nil {
+		if _, err = provider.API.CreateDNSRecord(
+			context.TODO(),
+			zoneID,
+			dnsRecord,
+		); err != nil {
 			return err
 		}
 		return nil
@@ -64,11 +73,16 @@ func (provider *CloudflareProvider) RemoveHostnameMapping(mapping *types.DNSMapp
 	provider.logger.Infow("Removing mapping from DNS", "mapping", mapping)
 	zoneName := getZoneName(mapping.Name)
 
-	zoneID, err := provider.API.ZoneIDByName(zoneName)
+	zoneIDString, err := provider.API.ZoneIDByName(zoneName)
 	if err != nil {
 		return err
 	}
-	records, err := provider.API.DNSRecords(context.TODO(), zoneID, cloudflare.DNSRecord{Name: mapping.Name, Type: "A"})
+	zoneID := cloudflare.ZoneIdentifier(zoneIDString)
+	records, _, err := provider.API.ListDNSRecords(
+		context.TODO(),
+		zoneID,
+		cloudflare.ListDNSRecordsParams{Name: mapping.Name, Type: "A"},
+	)
 	if err != nil {
 		return err
 	}
