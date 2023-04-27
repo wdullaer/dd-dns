@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.24.0
-	tailscale.com v1.38.4
+	tailscale.com v1.40.0
 )
 
 require (
@@ -20,8 +20,6 @@ require (
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
-	github.com/fatih/color v1.15.0 // indirect
-	github.com/frankban/quicktest v1.14.3 // indirect
 	github.com/fxamacker/cbor/v2 v2.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -33,8 +31,6 @@ require (
 	github.com/hdevalence/ed25519consensus v0.1.0 // indirect
 	github.com/josharian/native v1.1.1-0.20230202152459-5c7d0dd6ab86 // indirect
 	github.com/jsimonetti/rtnetlink v1.3.1 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mdlayher/netlink v1.7.1 // indirect
 	github.com/mdlayher/socket v0.4.0 // indirect
 	github.com/mitchellh/go-ps v1.0.0 // indirect
@@ -44,7 +40,6 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
