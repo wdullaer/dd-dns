@@ -6,7 +6,7 @@ require (
 	github.com/docker/docker v24.0.0+incompatible
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-memdb v1.3.4
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.24.0
 	tailscale.com v1.40.1
 )
