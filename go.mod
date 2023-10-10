@@ -4,7 +4,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/cloudflare/cloudflare-go v0.75.0
 	github.com/docker/docker v24.0.6+incompatible
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.26.0
