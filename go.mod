@@ -3,7 +3,7 @@ module github.com/wdullaer/dd-dns
 require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/cloudflare/cloudflare-go v0.75.0
-	github.com/docker/docker v24.0.7+incompatible
+	github.com/docker/docker v25.0.2+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.8.4
@@ -16,13 +16,16 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/akutz/memconn v0.1.0 // indirect
 	github.com/alexbrainman/sspi v0.0.0-20231016080023-1a75b4708caa // indirect
+	github.com/containerd/log v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dblohm7/wingoes v0.0.0-20230929194252-e994401fc077 // indirect
 	github.com/distribution/reference v0.5.0 // indirect
-	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.5.0 // indirect
+	github.com/go-logr/logr v1.4.1 // indirect
+	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -45,6 +48,12 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tailscale/go-winio v0.0.0-20231025203758-c4f33415bf55 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.47.0 // indirect
+	go.opentelemetry.io/otel v1.22.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.22.0 // indirect
+	go.opentelemetry.io/otel/metric v1.22.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.22.0 // indirect
+	go.opentelemetry.io/otel/trace v1.22.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go4.org/mem v0.0.0-20220726221520-4f986261bf13 // indirect
 	go4.org/netipx v0.0.0-20230824141953-6213f710f925 // indirect
@@ -52,7 +61,7 @@ require (
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.15.0 // indirect
