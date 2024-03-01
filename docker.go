@@ -7,6 +7,7 @@ import (
 	"net"
 
 	dt "github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
@@ -18,7 +19,7 @@ func syncDNSWithDocker(state *State) error {
 	args := filters.NewArgs()
 	args.Add("label", state.Config.DockerLabel)
 	args.Add("status", "running")
-	containerList, err := state.DockerClient.ContainerList(context.Background(), dt.ContainerListOptions{
+	containerList, err := state.DockerClient.ContainerList(context.Background(), container.ListOptions{
 		Filters: args,
 	})
 	if err != nil {
@@ -105,7 +106,7 @@ func makeDockerChannels(client *docker.Client, config *config) (<-chan events.Me
 func getContainerByID(client *docker.Client, id string) (*dt.Container, error) {
 	args := filters.NewArgs()
 	args.Add("id", id)
-	containers, err := client.ContainerList(context.Background(), dt.ContainerListOptions{
+	containers, err := client.ContainerList(context.Background(), container.ListOptions{
 		Filters: args,
 	})
 	if err != nil {
