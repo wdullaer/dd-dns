@@ -3,12 +3,12 @@ updates:
 - package-ecosystem: gomod
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: github.com/cloudflare/cloudflare-go
-    versions:
-    - 0.14.0
+  groups:
+    all:
+      patterns:
+      - "*"
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
