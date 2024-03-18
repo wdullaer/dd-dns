@@ -2,13 +2,13 @@ module github.com/wdullaer/dd-dns
 
 require (
 	github.com/boltdb/bolt v1.3.1
-	github.com/cloudflare/cloudflare-go v0.89.0
+	github.com/cloudflare/cloudflare-go v0.90.0
 	github.com/docker/docker v25.0.4+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.60.1
+	tailscale.com v1.62.0
 )
 
 require (
@@ -57,11 +57,11 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go4.org/mem v0.0.0-20220726221520-4f986261bf13 // indirect
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
-	golang.org/x/crypto v0.20.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/mod v0.15.0 // indirect
-	golang.org/x/net v0.21.0 // indirect
+	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.18.0 // indirect
