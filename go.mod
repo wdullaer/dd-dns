@@ -2,13 +2,13 @@ module github.com/wdullaer/dd-dns
 
 require (
 	github.com/boltdb/bolt v1.3.1
-	github.com/cloudflare/cloudflare-go v0.95.0
+	github.com/cloudflare/cloudflare-go v0.96.0
 	github.com/docker/docker v26.1.3+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.66.3
+	tailscale.com v1.66.4
 )
 
 require (
@@ -31,7 +31,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.5 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.6 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
