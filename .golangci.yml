@@ -1,5 +1,5 @@
 # options for analysis running
-run:
+# run:
   # by default isn't set. If set we pass it to "go list -mod={option}". From "go help modules":
   # If invoked with -mod=readonly, the go command is disallowed from the implicit
   # automatic updating of go.mod described above. Instead, it fails when any changes
@@ -15,16 +15,16 @@ run:
   # default value is empty list, but next dirs are always skipped independently
   # from this option's value:
   #   	vendor$, third_party$, testdata$, examples$, Godeps$, builtin$
-  skip-dirs:
-    - ".*.pb.go"
-  skip-files:
   # modules-download-mode: vendor
 
+issues:
+  exclude-generated: strict
 
 # output configuration options
 output:
   # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
-  format: colored-line-number
+  formats: 
+    - format: colored-line-number
 
   # print lines of code with issue, default is true
   print-issued-lines: true
@@ -44,8 +44,6 @@ linters-settings:
     check-blank: false
 
   govet:
-    # report about shadowed variables
-    check-shadowing: true
     enable-all: true
     # settings per analyzer
     settings:
@@ -56,14 +54,10 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
 
-  golint:
-    # minimal confidence for issues, default is 0.8
-    min-confidence: 0.8
-
-  goimports:
+  # goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
-    local-prefixes: 
+    # local-prefixes: 
 
   gocyclo:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
@@ -93,7 +87,7 @@ linters-settings:
     # XXX: if you enable this setting, unused will report a lot of false-positives in text editors:
     # if it's called for subdir of a project it can't find funcs usages. All text editor integrations
     # with golangci-lint call it on a directory with the changed file.
-    check-exported: false
+    # exported-is-used: false
 
   unparam:
     # Inspect exported functions, default is false. Set to true if no external program/library imports your code.
@@ -118,4 +112,5 @@ linters:
     - gocritic
     - gochecknoinits
     - gochecknoglobals
+    - unused
   

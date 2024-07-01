@@ -97,7 +97,7 @@ func makeDockerChannels(client *docker.Client, config *config) (<-chan events.Me
 
 	// TODO: also listen to network/connect and network/disconnect messages, as these might change the IP of a container
 
-	return client.Events(context.Background(), dt.EventsOptions{
+	return client.Events(context.Background(), events.ListOptions{
 		Filters: args,
 	})
 }
