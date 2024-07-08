@@ -2,13 +2,13 @@ module github.com/wdullaer/dd-dns
 
 require (
 	github.com/boltdb/bolt v1.3.1
-	github.com/cloudflare/cloudflare-go v0.98.0
+	github.com/cloudflare/cloudflare-go v0.99.0
 	github.com/docker/docker v27.0.3+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-memdb v1.3.4
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.68.1
+	tailscale.com v1.68.2
 )
 
 require (
