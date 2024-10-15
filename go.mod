@@ -69,4 +69,6 @@ require (
 	gotest.tools/v3 v3.3.0 // indirect
 )
 
-go 1.23
+go 1.23.1
+
+toolchain go1.23.2
