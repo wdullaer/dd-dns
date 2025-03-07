@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 
-	dt "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/api/types/filters"
@@ -103,7 +102,7 @@ func makeDockerChannels(client *docker.Client, config *config) (<-chan events.Me
 }
 
 // getContainerByID retrieves a Container Object. Returns an error if the container is not found
-func getContainerByID(client *docker.Client, id string) (*dt.Container, error) {
+func getContainerByID(client *docker.Client, id string) (*container.Summary, error) {
 	args := filters.NewArgs()
 	args.Add("id", id)
 	containers, err := client.ContainerList(context.Background(), container.ListOptions{
@@ -122,7 +121,7 @@ func getContainerByID(client *docker.Client, id string) (*dt.Container, error) {
 //   - If mode is `container`: the IP address of the container in the first network is returned
 //   - If mode is `tailscale`: the IPv4 address of the current tailnet is returned
 //   - If mode is an IP address: that IP address is parsed and returned
-func getIP(container *dt.Container, mode string) (net.IP, error) {
+func getIP(container *container.Summary, mode string) (net.IP, error) {
 	switch mode {
 	case "container":
 		// TODO: look at a docker label for the network to use (return first if not set)
