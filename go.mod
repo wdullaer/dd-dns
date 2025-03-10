@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.80.2
+	tailscale.com v1.80.3
 )
 
 require (
