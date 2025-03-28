@@ -99,7 +99,7 @@ func getDNSProvider(config *config, logger *zap.SugaredLogger) (dns.Provider, er
 		return dns.NewDryrunProvider(logger)
 	default:
 		// Since we are eagerly validating the config, this should never happen
-		return nil, fmt.Errorf("Invalid provider specified: %s", config.Provider)
+		return nil, fmt.Errorf("invalid provider specified: %s", config.Provider)
 	}
 }
 
@@ -111,6 +111,6 @@ func getStore(config *config, logger *zap.SugaredLogger) (store.Store, error) {
 		return store.NewBoltDBStore(logger, config.DataDirectory)
 	default:
 		// Since we are eagerly validating the config, this should never happen
-		return nil, fmt.Errorf("Invalid store specified: %s", config.Store)
+		return nil, fmt.Errorf("invalid store specified: %s", config.Store)
 	}
 }
