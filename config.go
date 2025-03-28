@@ -102,7 +102,7 @@ func validateProvider(provider string) (string, error) {
 	case "dryrun":
 		return "dryrun", nil
 	default:
-		return "", fmt.Errorf("Invalid provider `%s` specified. Available providers: [`cloudflare`, `dryrun`]", provider)
+		return "", fmt.Errorf("invalid provider `%s` specified. Available providers: [`cloudflare`, `dryrun`]", provider)
 	}
 }
 
@@ -127,12 +127,12 @@ func validateDNSContent(dnsContent string) (string, error) {
 	default:
 		ip := net.ParseIP(dnsContent)
 		if ip == nil {
-			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
+			return "", fmt.Errorf("invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
 		}
 		ip = ip.To4()
 		// TODO: remove this check when we add IPv6 support. We might want to split this config variable in 2 when we do (MODE and actual IP)
 		if ip == nil {
-			return "", fmt.Errorf("Invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
+			return "", fmt.Errorf("invalid dns-content specified. `%s` must be a valid IPv4 address or one of `container`", dnsContent)
 		}
 		return ip.String(), nil
 	}
@@ -159,7 +159,7 @@ func validateStore(store string) (string, error) {
 	case "":
 		return "memory", nil
 	default:
-		return "", fmt.Errorf("Invalid store `%s` provided. Available store implementations: [`memory`, `boltdb`]", store)
+		return "", fmt.Errorf("invalid store `%s` provided. Available store implementations: [`memory`, `boltdb`]", store)
 	}
 }
 
