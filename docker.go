@@ -11,7 +11,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
 	"github.com/wdullaer/dd-dns/types"
-	"tailscale.com/client/tailscale"
+	tailscale "tailscale.com/client/local"
 )
 
 func syncDNSWithDocker(state *State) error {
