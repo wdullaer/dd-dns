@@ -1,4 +1,3 @@
-//nolint:goconst
 package main
 
 import (
@@ -8,6 +7,14 @@ import (
 	"strings"
 
 	"go.uber.org/zap/zapcore"
+)
+
+const (
+	providerCloudflare  string = "cloudflare"
+	providerDryrun      string = "dryrun"
+	storeMemory         string = "memory"
+	storeBoltdb         string = "boltdb"
+	dnsContentContainer string = "container"
 )
 
 type config struct {
@@ -96,11 +103,11 @@ func (c *config) Validate() []error {
 func validateProvider(provider string) (string, error) {
 	switch sanitize(provider) {
 	case "":
-		return "cloudflare", nil
-	case "cloudflare":
-		return "cloudflare", nil
-	case "dryrun":
-		return "dryrun", nil
+		return providerCloudflare, nil
+	case providerCloudflare:
+		return providerCloudflare, nil
+	case providerDryrun:
+		return providerDryrun, nil
 	default:
 		return "", fmt.Errorf("invalid provider `%s` specified. Available providers: [`cloudflare`, `dryrun`]", provider)
 	}
@@ -121,9 +128,9 @@ func validateDNSContent(dnsContent string) (string, error) {
 	dnsContent = sanitize(dnsContent)
 	switch dnsContent {
 	case "":
-		return "container", nil
-	case "container":
-		return "container", nil
+		return dnsContentContainer, nil
+	case dnsContentContainer:
+		return dnsContentContainer, nil
 	default:
 		ip := net.ParseIP(dnsContent)
 		if ip == nil {
@@ -152,12 +159,12 @@ func validateDockerLabel(dockerLabel string) (string, error) {
 // validateStore normalizes Store and checks that it is part of the list of allowable values
 func validateStore(store string) (string, error) {
 	switch sanitize(store) {
-	case "memory":
-		return "memory", nil
-	case "boltdb":
-		return "boltdb", nil
+	case storeMemory:
+		return storeMemory, nil
+	case storeBoltdb:
+		return storeBoltdb, nil
 	case "":
-		return "memory", nil
+		return storeMemory, nil
 	default:
 		return "", fmt.Errorf("invalid store `%s` provided. Available store implementations: [`memory`, `boltdb`]", store)
 	}
