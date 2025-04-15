@@ -93,9 +93,9 @@ func getDockerClient() (*docker.Client, error) {
 
 func getDNSProvider(config *config, logger *zap.SugaredLogger) (dns.Provider, error) {
 	switch config.Provider {
-	case "cloudflare":
+	case providerCloudflare:
 		return dns.NewCloudflareProvider(config.AccountName, config.AccountSecret, logger)
-	case "dryrun":
+	case providerDryrun:
 		return dns.NewDryrunProvider(logger)
 	default:
 		// Since we are eagerly validating the config, this should never happen
@@ -105,9 +105,9 @@ func getDNSProvider(config *config, logger *zap.SugaredLogger) (dns.Provider, er
 
 func getStore(config *config, logger *zap.SugaredLogger) (store.Store, error) {
 	switch config.Store {
-	case "memory":
+	case storeMemory:
 		return store.NewMemoryStore(logger)
-	case "boltdb":
+	case storeBoltdb:
 		return store.NewBoltDBStore(logger, config.DataDirectory)
 	default:
 		// Since we are eagerly validating the config, this should never happen
