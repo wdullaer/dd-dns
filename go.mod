@@ -3,12 +3,12 @@ module github.com/wdullaer/dd-dns
 require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/cloudflare/cloudflare-go v0.115.0
-	github.com/docker/docker v28.1.1+incompatible
+	github.com/docker/docker v28.2.2+incompatible
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.84.0
+	tailscale.com v1.84.1
 )
 
 require (
@@ -17,6 +17,8 @@ require (
 	github.com/akutz/memconn v0.1.0 // indirect
 	github.com/alexbrainman/sspi v0.0.0-20231016080023-1a75b4708caa // indirect
 	github.com/coder/websocket v1.8.12 // indirect
+	github.com/containerd/errdefs v1.0.0 // indirect
+	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dblohm7/wingoes v0.0.0-20240119213807-a09d6be7affa // indirect
