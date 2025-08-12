@@ -245,5 +245,5 @@ gotest.tools/v3 v3.3.0 h1:MfDY1b1/0xN1CyMlQDac0ziEy9zJQd9CXBRRDHw2jJo=
 gotest.tools/v3 v3.3.0/go.mod h1:Mcr9QNxkg0uMvy/YElmo4SpXgJKWgQvYrT7Kw5RzJ1A=
 gvisor.dev/gvisor v0.0.0-20250205023644-9414b50a5633 h1:2gap+Kh/3F47cO6hAu3idFvsJ0ue6TRcEi2IUkv/F8k=
 gvisor.dev/gvisor v0.0.0-20250205023644-9414b50a5633/go.mod h1:5DMfjtclAbTIjbXqO1qCe2K5GKKxWz2JHvCChuTcJEM=
-tailscale.com v1.86.2 h1:rZyR7vBqpFfQcei+vf69uaJXlJtcLGIub5Sftjs5Tbc=
-tailscale.com v1.86.2/go.mod h1:Lm8dnzU2i/Emw15r6sl3FRNp/liSQ/nYw6ZSQvIdZ1M=
+tailscale.com v1.86.4 h1:KHAmLyzVn50t2P5877wohBU0UPVeIMHC9XDzRw4Ycz4=
+tailscale.com v1.86.4/go.mod h1:Lm8dnzU2i/Emw15r6sl3FRNp/liSQ/nYw6ZSQvIdZ1M=
