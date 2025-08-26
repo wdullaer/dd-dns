@@ -6,9 +6,9 @@ require (
 	github.com/docker/docker v28.3.3+incompatible
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/go-memdb v1.3.5
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.86.4
+	tailscale.com v1.86.5
 )
 
 require (
