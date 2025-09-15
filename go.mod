@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.0
-	tailscale.com v1.86.5
+	tailscale.com v1.88.1
 )
 
 require (
@@ -27,7 +27,7 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
-	github.com/go-json-experiment/json v0.0.0-20250223041408-d3c622f1b874 // indirect
+	github.com/go-json-experiment/json v0.0.0-20250813024750-ebf49471dced // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
@@ -72,4 +72,4 @@ require (
 	gotest.tools/v3 v3.3.0 // indirect
 )
 
-go 1.24.4
+go 1.25.1
