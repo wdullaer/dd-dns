@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.1
-	tailscale.com v1.90.8
+	tailscale.com v1.92.0
 )
 
 require (
@@ -60,7 +60,7 @@ require (
 	go4.org/mem v0.0.0-20240501181205-ae6ca9944745 // indirect
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba // indirect
 	golang.org/x/crypto v0.45.0 // indirect
-	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
+	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
