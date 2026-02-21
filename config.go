@@ -20,7 +20,7 @@ const (
 type config struct {
 	Provider      string `json:"provider"`
 	AccountName   string `json:"account-name"`
-	AccountSecret string `json:"account-secret"`
+	AccountSecret string `json:"account-secret"` //nolint:gosec
 	DNSContent    string `json:"dns-content"`
 	DockerLabel   string `json:"docker-label"`
 	Store         string `json:"store"`

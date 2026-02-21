@@ -30,7 +30,7 @@ func parseFlags() *config {
 	)
 
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), usage, os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), usage, os.Args[0]) //nolint:gosec
 		flag.PrintDefaults()
 	}
 
