@@ -8,11 +8,11 @@ require (
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.1
-	tailscale.com v1.94.2
+	tailscale.com v1.96.0
 )
 
 require (
-	filippo.io/edwards25519 v1.1.1 // indirect
+	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/akutz/memconn v0.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -69,4 +69,4 @@ require (
 	gotest.tools/v3 v3.3.0 // indirect
 )
 
-go 1.25.5
+go 1.26.0
