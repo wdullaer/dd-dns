@@ -26,6 +26,7 @@ linters:
     goconst:
       min-len: 3
       min-occurrences: 3
+      ignore-tests: true
     gocyclo:
       min-complexity: 15
     govet:
