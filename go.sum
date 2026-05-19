@@ -215,5 +215,5 @@ gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gotest.tools/v3 v3.3.0 h1:MfDY1b1/0xN1CyMlQDac0ziEy9zJQd9CXBRRDHw2jJo=
 gotest.tools/v3 v3.3.0/go.mod h1:Mcr9QNxkg0uMvy/YElmo4SpXgJKWgQvYrT7Kw5RzJ1A=
-tailscale.com v1.98.1 h1:dEiQ3OqCzzcjTsP4m+CQTwz7ZdtdhxPbccY7AjUWno0=
-tailscale.com v1.98.1/go.mod h1:6WwM2RnFW9gOQjdonp4c4QINm9odc1NlBQykKBncK/Q=
+tailscale.com v1.98.2 h1:HP5gt0qyLKtJoDV7PMUvPpiXjMFk4nzXMbm7JdjttMY=
+tailscale.com v1.98.2/go.mod h1:U23ZwbZlKJMNU7CScy+lCVVlece/S5n09q0nyudncBI=
